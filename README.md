@@ -1,8 +1,8 @@
-# webedit-react  Blinkenrocket WebInterface
+# webedit-react  Blinkenstar WebInterface
 
-[![Build Status](https://travis-ci.org/blinkenrocket/webedit-react.svg?branch=master)](https://travis-ci.org/blinkenrocket/webedit-react)
+[![Build Status](https://travis-ci.org/blinkenstar/webedit-react.svg?branch=master)](https://travis-ci.org/blinkenstar/webedit-react)
 
-[blinkenrocket.de](http://blinkenrocket.de/)
+[blinkenstar.sternenlabor.de](http://blinkenstar.sternenlabor.de/)
 
 
 ## Quickstart
@@ -28,9 +28,9 @@ Now you can access the web interface via http://127.0.0.1:8080
 
 #### Deployment
 
-The [production release](https://editor.blinkenrocket.de) is hosted at Firebase. To deploy a new version, execute the following commands on your local machine:
+The [production release](https://editor.blinkenstar.sternenlabor.de) is hosted at Firebase. To deploy a new version, execute the following commands on your local machine:
 ```
-  $ FIREBASE_PROJECT_ID='blinkenrocket' FIREBASE_API_KEY='<api key>' FIREBASE_AUTH_DOMAIN='editor.blinkenrocket.de' yarn build-firebase
+  $ FIREBASE_PROJECT_ID='blinkenstar' FIREBASE_API_KEY='<api key>' FIREBASE_AUTH_DOMAIN='editor.blinkenstar.sternenlabor.de' yarn build-firebase
   $ firebase login
   $ firebase deploy -m "some explanation what this release changes"
 ```
@@ -39,7 +39,7 @@ The [production release](https://editor.blinkenrocket.de) is hosted at Firebase.
 ## Notes
 
 * if you want to test the interface from other devices use `webpack-dev-server --host <ip-adress-of-your-computer>`
-* See [github.com/ChrisVeigl/blinkenrocket-firmware/docs](https://github.com/ChrisVeigl/blinkenrocket-firmware/tree/master/docs) for more infos about the v2 firmware
+* See [github.com/ChrisVeigl/blinkenstar-firmware/docs](https://github.com/ChrisVeigl/blinkenstar-firmware/tree/master/docs) for more infos about the v2 firmware
 
 
 ## Contributors

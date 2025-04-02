@@ -1,26 +1,26 @@
 {
   "name": "webedit-react",
   "version": "1.0.2",
-  "description": "Webeditor for Blinkenrockets",
+  "description": "Webeditor for Blinkenstar",
   "scripts": {
     "test": "npm run build && npm run lint && flow",
-    "gh-pages": "NODE_ENV=production HOST=blinkenrocket.de BASE_URL=/webedit-react webpack",
+    "gh-pages": "NODE_ENV=production HOST=blinkenstar.sternenlabor.de BASE_URL=/webedit-react webpack",
     "start": "BABEL_ENV=hot webpack-dev-server --host 0.0.0.0 --hot --inline --progress --history-api-fallback --content-base public",
     "dev": "webpack-dashboard -- webpack-dev-server --host 0.0.0.0 --inline --content-base public/ --history-api-fallback --quiet",
     "lint": "eslint src/**/*.js && eslint src/**/*.jsx",
-    "build-firebase": "NODE_ENV=production HOST=editor.blinkenrocket.de webpack",
+    "build-firebase": "NODE_ENV=production HOST=editor.blinkenstar.sternenlabor.de webpack",
     "build": "webpack"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/blinkenrocket/webedit-react.git"
+    "url": "git+https://github.com/Sternenlabor/Blinkenstar-Webedit.git"
   },
   "author": "marudor",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/blinkenrocket/webedit-react/issues"
+    "url": "https://github.com/Sternenlabor/Blinkenstar-Webedit/issues"
   },
-  "homepage": "https://github.com/blinkenrocket/webedit-react#readme",
+  "homepage": "https://github.com/Sternenlabor/Blinkenstar-Webedit#readme",
   "devDependencies": {
     "babel-core": "6.26.0",
     "babel-eslint": "8.0.3",

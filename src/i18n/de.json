@@ -1,5 +1,5 @@
 {
-  "headerTitle": "BlinkenRocket DE",
+  "headerTitle": "Blinkenstar DE",
   "animation": {
     "new": "Neu {{type}}",
     "text": "Text",
@@ -56,8 +56,8 @@
     "transfer": "Übertragen",
     "submit": "Übertragen",
     "title": "Daten Übertragen",
-    "instructions0": "Bitte schalte deine BlinkenRocket an",
-    "instructions1": "Verbinde das Audio-Kabel mit deinem Computer und deiner BlinkenRocket",
+    "instructions0": "Bitte schalte deine Blinkenstar an",
+    "instructions1": "Verbinde das Audio-Kabel mit deinem Computer und deiner Blinkenstar",
     "instructions2": "Stelle die Lautstärke auf das Maxmimum!",
     "instructions3": "Drücke auf den Übertragen-Button"
   },

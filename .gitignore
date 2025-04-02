@@ -38,3 +38,5 @@ npm-shrinkwrap.json
 
 #intellij idea
 *.iml
+
+.firebase/
