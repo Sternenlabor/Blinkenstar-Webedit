@@ -12,8 +12,8 @@
  *    - transfer protocol and state machine modified
  *    - sync signal is not necessary anymore (replaced by silence)
  *
- *  see firmware implementation, blinkenrocket-firmware repository,
- *    /doc/blinkenrocket_debugging.pdf 
+ *  see firmware implementation, blinkenstar-firmware repository,
+ *    /doc/blinkenstar_debugging.pdf 
 */
 
 
@@ -140,7 +140,7 @@ export default class Modem {
       return d;
     }).toArray());
 
-    // build frames using new transfer protocol, for details see blinkenrocket-firmware
+    // build frames using new transfer protocol, for details see blinkenstar-firmware
     this.data = [STARTCODE1, STARTCODE1, STARTCODE1, STARTCODE2, ...data, ENDCODE, ENDCODE, ENDCODE];
     console.log(this.data);
   }
