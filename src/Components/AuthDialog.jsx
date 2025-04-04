@@ -1,6 +1,5 @@
 /* @flow */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { t } from 'i18next';
 import Radium from 'radium';
@@ -11,17 +10,18 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
-import NavigationClose from 'material-ui/svg-icons/navigation/close';
-import { FlatButton, TextField, RaisedButton } from 'material-ui';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
 
 import { signedUp, loggedIn, syncLibrary } from 'Actions/auth';
-
 
 const style = {
   signupHint: {
     marginTop: '50px'
   }
-}
+};
 
 type Props = {
   isOpen: boolean,
@@ -54,8 +54,7 @@ class AuthDialog extends React.Component<Props, State> {
   }
 
   login = () => {
-    const { email, password} = this.state;
-
+    const { email, password } = this.state;
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then((res) => {
         this.props.loggedIn(res.user['uid']);
@@ -68,7 +67,7 @@ class AuthDialog extends React.Component<Props, State> {
   }
 
   signup = () => {
-    const { email, password} = this.state;
+    const { email, password } = this.state;
     firebase.auth().createUserWithEmailAndPassword(email, password)
       .then((res) => {
         this.props.signedUp(res.user.uid, this.props.animations);
@@ -89,7 +88,7 @@ class AuthDialog extends React.Component<Props, State> {
   }
 
   close = () => {
-    this.setState({view: 'login', error: ''});
+    this.setState({ view: 'login', error: '' });
     this.props.close();
   }
 
@@ -97,9 +96,9 @@ class AuthDialog extends React.Component<Props, State> {
     const { isOpen } = this.props;
 
     const submitButton = {
-      login: <FlatButton key="l" label={t('auth_dialog.login')} primary onClick={this.login} />,
-      signup: <FlatButton key="s" label={t('auth_dialog.signup')} primary onClick={this.signup} />,
-      reset: <FlatButton key="r" label={t('auth_dialog.reset')} primary onClick={this.resetPwd} />,
+      login: <Button key="l" variant="contained" color="primary" onClick={this.login}>{t('auth_dialog.login')}</Button>,
+      signup: <Button key="s" variant="contained" color="primary" onClick={this.signup}>{t('auth_dialog.signup')}</Button>,
+      reset: <Button key="r" variant="contained" color="primary" onClick={this.resetPwd}>{t('auth_dialog.reset')}</Button>,
     }[this.state.view];
 
     return (
@@ -108,32 +107,30 @@ class AuthDialog extends React.Component<Props, State> {
         <DialogContent>
           <TextField
             id="email"
-            onChange={(e) => this.setState({email: e.target.value})}
-            floatingLabelText={t('auth_dialog.email')}
-            floatingLabelFixed
+            onChange={(e) => this.setState({ email: e.target.value })}
+            label={t('auth_dialog.email')}
             autoFocus
+            fullWidth
           />
           <br />
           { (this.state.view !== 'reset') && 
-          <TextField
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            onChange={(e) => this.setState({password: e.target.value})}
-            floatingLabelText={t('auth_dialog.password')}
-            floatingLabelFixed
-          />
+            <TextField
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              onChange={(e) => this.setState({ password: e.target.value })}
+              label={t('auth_dialog.password')}
+              fullWidth
+            />
           }
-
           { (this.state.view === 'login') && (
-            <DialogContentText style={{ fontSize: '0.7rem', marginTop: '30px'}}>
-              { t('auth_dialog.account_missing') } { ' ' }
-              <a href="#" onClick={() => this.setState({view: 'signup'})}><strong>{t('auth_dialog.create_account')}</strong></a> 
+            <DialogContentText style={{ fontSize: '0.7rem', marginTop: '30px' }}>
+              { t('auth_dialog.account_missing') }{' '}
+              <a href="#" onClick={() => this.setState({ view: 'signup' })}><strong>{t('auth_dialog.create_account')}</strong></a>
               <br />
-              <a href="#" onClick={() => this.setState({view: 'reset'})}>{t('auth_dialog.forgot_pwd')}</a> 
+              <a href="#" onClick={() => this.setState({ view: 'reset' })}>{t('auth_dialog.forgot_pwd')}</a>
             </DialogContentText>
           )}
-
           { (this.state.error) && (
             <DialogContentText style={{ color: 'darkred' }}>
               { this.state.error }
@@ -141,14 +138,17 @@ class AuthDialog extends React.Component<Props, State> {
           )}
         </DialogContent>
         <DialogActions>
-          <FlatButton key="c" label={t('share_dialog.close')} onClick={this.close} icon={<NavigationClose />} />
+          <Button key="c" onClick={this.close} startIcon={<CloseIcon />}>
+            {t('share_dialog.close')}
+          </Button>
           { submitButton }
         </DialogActions>
       </Dialog>
     );
   }
 }
+
 export default connect(
   (state) => ({ animations: state.animations }),
-  { signedUp, loggedIn, syncLibrary })
-(AuthDialog);
+  { signedUp, loggedIn, syncLibrary }
+)(AuthDialog);

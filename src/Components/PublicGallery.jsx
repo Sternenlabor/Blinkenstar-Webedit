@@ -1,6 +1,5 @@
 /* @flow */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import UUID from 'uuid-js';
 import { t } from 'i18next';
@@ -16,6 +15,9 @@ const style = {
   canvas: {
     padding: '20px',
   },
+  loading: {
+    textAlign: 'center'
+  }
 };
 
 type Props = {
@@ -23,8 +25,7 @@ type Props = {
   gallery: Map<string, Animation>,
 };
 
-@Radium
-class PublicGallery extends React.Component<Props, State> {
+class PublicGallery extends React.Component<Props> {
   static defaultProps = {
     gallery: new Map()
   };
@@ -36,13 +37,11 @@ class PublicGallery extends React.Component<Props, State> {
   }
 
   copyAnimationToLibrary = (animation) => {
-    const cleaned = Object.assign({}, animation,
-      {
-        id: UUID.create().toString(),
-        author: undefined,
-        animation: { ...animation.animation }
-      }
-    );
+    const cleaned = Object.assign({}, animation, {
+      id: UUID.create().toString(),
+      author: undefined,
+      animation: { ...animation.animation }
+    });
 
     this.props.addAnimation(cleaned, this.props.uid);
   }
@@ -51,10 +50,10 @@ class PublicGallery extends React.Component<Props, State> {
     const gallery = this.props.gallery.valueSeq().sortBy(a => a.creationDate).reverse();
 
     return (
-      <App activeView="gallery" {...this.props} >
+      <App activeView="gallery" {...this.props}>
         <div style={style.canvas}>
           { gallery.size === 0 
-            ? <center><h3>Loading...</h3></center>
+            ? <div style={style.loading}><h3>Loading...</h3></div>
             : <Gallery 
                 gallery={gallery} 
                 clickLabel={ t('gallery.copy_animation') }
@@ -68,9 +67,9 @@ class PublicGallery extends React.Component<Props, State> {
 }
 
 export default connect(
-  (state => ({ 
+  state => ({ 
     uid: state.uid,
     gallery: state.gallery 
-  })), 
+  }), 
   { addAnimation, loadGallery }
 )(PublicGallery);

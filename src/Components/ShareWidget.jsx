@@ -1,10 +1,10 @@
 import React from 'react';
 import { t } from 'i18next';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-
-import { Dialog, FlatButton, RaisedButton } from 'material-ui';
-import ContentLink from 'material-ui/svg-icons/content/link';
-import NavigationClose from 'material-ui/svg-icons/navigation/close';
+import Dialog from '@material-ui/core/Dialog';
+import Button from '@material-ui/core/Button';
+import CloseIcon from '@material-ui/icons/Close';
+import LinkIcon from '@material-ui/icons/Link';
 
 type Props = {
   animation?: Animation,
@@ -12,8 +12,8 @@ type Props = {
 };
 
 type State = {
-  copied: bool
-}
+  copied: boolean
+};
 
 class ShareWidget extends React.Component<Props, State> {
   state: State = {
@@ -30,26 +30,23 @@ class ShareWidget extends React.Component<Props, State> {
     const url = `${HOST}${BASE_URL}/?s=${shareString}`;
 
     return (
-        <Dialog
-          title={t('share_dialog.title')}
-          actions={<FlatButton
-            key="c"
-            label={t('share_dialog.close')}
-            primary
-            onClick={this.props.close}
-            icon={<NavigationClose />}
-          />}
-          modal
-          autoScrollBodyContent
-          open={true}
-        >
+      <Dialog open={true} onClose={this.props.close}>
+        <div style={{ padding: 16 }}>
+          <h2>{t('share_dialog.title')}</h2>
           <p>{t('share_dialog.instructions')}</p>
           <CopyToClipboard text={url} onCopy={() => this.setState({copied: true})}>
-            <RaisedButton label={t('share_dialog.link')} primary keyboardFocused icon={<ContentLink />} />
+            <Button variant="contained" color="primary" startIcon={<LinkIcon />} autoFocus>
+              {t('share_dialog.link')}
+            </Button>
           </CopyToClipboard>
-          { this.state.copied && "Copied!" }
-          
-        </Dialog>
+          { this.state.copied && <div>Copied!</div> }
+          <div style={{ marginTop: 16 }}>
+            <Button variant="text" color="primary" onClick={this.props.close} startIcon={<CloseIcon />}>
+              {t('share_dialog.close')}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     );
   }
 }

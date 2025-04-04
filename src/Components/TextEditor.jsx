@@ -1,29 +1,26 @@
 // @flow
-import { Divider, Slider, TextField, Toggle } from 'material-ui';
-import { MAX_TEXT_LENGTH } from '../variables';
+import React from 'react';
+import Divider from '@material-ui/core/Divider';
+import Slider from '@material-ui/core/Slider';
+import TextField from '@material-ui/core/TextField';
+import Switch from '@material-ui/core/Switch';
 import { t } from 'i18next';
 import Radium from 'radium';
-import React from 'react';
 import AnimationPreview from './AnimationPreview';
 import font from 'font';
 import type { Animation } from 'Reducer';
 import Button from '@material-ui/core/Button';
-import SocialShare from 'material-ui/svg-icons/social/share';
-
-type Props = {
-  animation: Animation,
-  currentText?: ?string,
-  onUpdate: (Animation) => any,
-  onShare: (Animation) => any
-};
-
-type State = {
-  livePreview: boolean,
-};
+import ShareIcon from '@material-ui/icons/Share';
+import { colors } from 'material-ui/styles';
 
 const style = {
   noShrink: {
     flexShrink: 0,
+  },
+  textField: {
+    flexShrink: 0,
+    width: '256px',
+    marginBottom: '16px',
   },
   wrapper: {
     display: 'inline-flex',
@@ -53,76 +50,83 @@ const style = {
   },
 };
 
-@Radium
+type Props = {
+  animation: Animation,
+  currentText?: ?string,
+  onUpdate: (Animation) => any,
+  onShare: (Animation) => any
+};
+
+type State = {
+  livePreview: boolean,
+};
+
 class TextEditor extends React.Component<Props, State> {
   state: State = {
     livePreview: true,
   };
+
   handleChange(prop: string, e: SyntheticEvent<any>) {
     const { animation } = this.props;
-
-    e.target.value = this.deUmlaut(e.target.value);
-    e.target.value = e.target.value.split('').filter(c => font[c.charCodeAt(0)]).join('');
-    // $FlowFixMe
-    e.target.value = e.target.value.substring(0, MAX_TEXT_LENGTH);
-    this.props.onUpdate(
-      Object.assign({}, animation, {
-        // $FlowFixMe
-        [prop]: e.target.value,
-      })
-    );
+    let value = e.target.value;
+    value = this.deUmlaut(value);
+    value = value.split('').filter(c => font[c.charCodeAt(0)]).join('');
+    value = value.substring(0, 200);
+    this.props.onUpdate({
+      ...animation,
+      [prop]: value,
+    });
   }
-  handleSpeedChange = (e: SyntheticEvent<*>, value: number) => {
-    const { animation } = this.props;
 
-    this.props.onUpdate(
-      Object.assign({}, animation, {
-        speed: value,
-      })
-    );
-  };
-  handleDelayChange = (e: SyntheticEvent<*>, value: number) => {
+  handleSpeedChange = (e, value: number) => {
     const { animation } = this.props;
-
-    this.props.onUpdate(
-      Object.assign({}, animation, {
-        delay: value,
-      })
-    );
-  };
-  handleRepeatChange = (e: SyntheticEvent<*>, value: number) => {
-    const { animation } = this.props;
-
-    this.props.onUpdate(
-      Object.assign({}, animation, {
-        repeat: value,
-      })
-    );
-  };
-  handleDirectionChange = (e: SyntheticEvent<*>, toggled: boolean) => {
-    const { animation } = this.props;
-
-    this.props.onUpdate(
-      Object.assign({}, animation, {
-        direction: toggled ? 1 : 0,
-      })
-    );
-  };
-  handlePreviewChange = (e: SyntheticEvent<*>, toggled: boolean) => {
-    this.setState({
-      livePreview: toggled,
+    this.props.onUpdate({
+      ...animation,
+      speed: value,
     });
   };
+
+  handleDelayChange = (e, value: number) => {
+    const { animation } = this.props;
+    this.props.onUpdate({
+      ...animation,
+      delay: value,
+    });
+  };
+
+  handleRepeatChange = (e, value: number) => {
+    const { animation } = this.props;
+    this.props.onUpdate({
+      ...animation,
+      repeat: value,
+    });
+  };
+
+  handleDirectionChange = (e, checked: boolean) => {
+    const { animation } = this.props;
+    this.props.onUpdate({
+      ...animation,
+      direction: checked ? 1 : 0,
+    });
+  };
+
+  handlePreviewChange = (e, checked: boolean) => {
+    this.setState({
+      livePreview: checked,
+    });
+  };
+
   deUmlaut = (value) => {
-    value = value.replace('ä', 'ae');
-    value = value.replace('ö', 'oe');
-    value = value.replace('ü', 'ue');
-    value = value.replace('Ä', 'Ae');
-    value = value.replace('Ö', 'Oe');
-    value = value.replace('Ü', 'Ue');
-    value = value.replace('ß', 'ss');
+    value = value.replace(/ä/g, 'ae');
+    value = value.replace(/ö/g, 'oe');
+    value = value.replace(/ü/g, 'ue');
+    value = value.replace(/Ä/g, 'Ae');
+    value = value.replace(/Ö/g, 'Oe');
+    value = value.replace(/Ü/g, 'Ue');
+    value = value.replace(/ß/g, 'ss');
     return value;
   };
+
   render() {
     const { animation } = this.props;
     const { livePreview } = this.state;
@@ -133,35 +137,32 @@ class TextEditor extends React.Component<Props, State> {
            size="small"
            variant="outlined"
            color="primary"
-           style={{alignSelf: 'flex-end', marginTop: '10px', marginBottom: '-20px', minHeight: '34px'}}
+           style={{ alignSelf: 'flex-end', marginTop: '10px', marginBottom: '-20px', minHeight: '34px' }}
            onClick={() => this.props.onShare(animation)}
          >
-           {<SocialShare />} Share
+           <ShareIcon /> Share
          </Button>
         <AnimationPreview animation={animation} />
-        <Divider />
+        <Divider style={{ marginBottom: '16px', background: 'transparent' }} />
         <TextField
-          style={style.noShrink}
+          style={style.textField}
           id="text"
-          value={animation.text || ' '}
-          onChange={this.handleChange.bind(this, 'text')}
-          floatingLabelText={t('textEditor.textPlaceholder')}
+          value={animation.text || ''}
+          onChange={(e) => this.handleChange('text', e)}
+          label={t('textEditor.textPlaceholder')}
           placeholder={t('textEditor.textPlaceholder')}
-          floatingLabelFixed
         />
         <TextField
-          style={style.noShrink}
+          style={style.textField}
           id="name"
           value={animation.name}
-          onChange={this.handleChange.bind(this, 'name')}
-          floatingLabelText={t('textEditor.name')}
+          onChange={(e) => this.handleChange('name', e)}
+          label={t('textEditor.name')}
           placeholder={t('textEditor.name')}
-          floatingLabelFixed
         />
-        <div style={[style.sliderContainer, style.noShrink]}>
-          <p style={style.sliderLabel}>{t('textEditor.speed')}</p>
+        <div style={style.sliderContainer}>
+          <span style={style.sliderLabel}>{t('textEditor.speed')}</span>
           <Slider
-            description={t('textEditor.speed')}
             style={style.slider}
             value={animation.speed}
             step={1}
@@ -171,10 +172,9 @@ class TextEditor extends React.Component<Props, State> {
           />
           {animation.speed}
         </div>
-        <div style={[style.sliderContainer, style.noShrink]}>
-          <p style={style.sliderLabel}>{t('textEditor.delay')}</p>
+        <div style={style.sliderContainer}>
+          <span style={style.sliderLabel}>{t('textEditor.delay')}</span>
           <Slider
-            description={t('textEditor.delay')}
             style={style.slider}
             value={animation.delay}
             step={0.5}
@@ -184,10 +184,9 @@ class TextEditor extends React.Component<Props, State> {
           />
           {animation.delay}
         </div>
-        <div style={[style.sliderContainer, style.noShrink]}>
-          <p style={style.sliderLabel}>{t('textEditor.repeat')}</p>
+        <div style={style.sliderContainer}>
+          <span style={style.sliderLabel}>{t('textEditor.repeat')}</span>
           <Slider
-            description={t('textEditor.repeat')}
             style={style.slider}
             value={animation.repeat}
             step={1}
@@ -197,15 +196,19 @@ class TextEditor extends React.Component<Props, State> {
           />
           {animation.repeat}
         </div>
-        <div style={[style.sliderContainer, style.noShrink]}>
-          <Toggle
-            label={t('textEditor.rtl')}
-            toggled={Boolean(animation.direction)}
-            onToggle={this.handleDirectionChange}
+        <div style={style.sliderContainer}>
+          <span style={style.sliderLabel}>{t('textEditor.rtl')}</span>
+          <Switch
+            checked={Boolean(animation.direction)}
+            onChange={this.handleDirectionChange}
           />
         </div>
-        <div style={[style.sliderContainer, style.noShrink]}>
-          <Toggle label={t('textEditor.livePreview')} toggled={livePreview} onToggle={this.handlePreviewChange} />
+        <div style={style.sliderContainer}>
+          <span style={style.sliderLabel}>{t('textEditor.livePreview')}</span>
+          <Switch
+            checked={livePreview}
+            onChange={this.handlePreviewChange}
+          />
         </div>
       </div>
     );
