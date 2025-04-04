@@ -1,6 +1,5 @@
 /* @flow */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import App from './App';
 import TextEditor from './TextEditor';
@@ -11,7 +10,7 @@ import { updateAnimation } from 'Actions/animations';
 
 type Props = {
   uid?: string,
-  animations: Array<Animation>,
+  animations: any,
   routeParams: object,
   updateAnimation: typeof updateAnimation
 };
@@ -27,10 +26,10 @@ class Webedit extends React.Component<Props, State> {
 
   handleUpdate = (animation) => (
     this.props.updateAnimation(animation, this.props.uid)
-  )
+  );
 
   handleShare = (animation) => {
-    this.setState({sharing: animation});
+    this.setState({ sharing: animation });
   };
 
   render() {
@@ -39,32 +38,29 @@ class Webedit extends React.Component<Props, State> {
     const animation = (id) ? animations.get(id) : animations.first();
     let element;
     if (!animation) {
-      element = <div></div>;
+      element = <div />;
     } else if (animation.type === 'text') {
-      element = <TextEditor animation={ animation } onUpdate={ this.handleUpdate } onShare={ this.handleShare }/>;
+      element = <TextEditor animation={animation} onUpdate={this.handleUpdate} onShare={this.handleShare} />;
     } else if (animation.type === 'pixel') {
-      element = <PixelEditor animation={ animation } onUpdate={ this.handleUpdate } onShare={ this.handleShare }/>;
+      element = <PixelEditor animation={animation} onUpdate={this.handleUpdate} onShare={this.handleShare} />;
     }
 
     return (
-      <App 
-        activeView="webedit" 
-        currentAnimationId={id}
-        {...this.props}
-      >
+      <App activeView="webedit" currentAnimationId={id} {...this.props}>
         { element }
         <ShareWidget 
-          animation={ this.state.sharing } 
-          close={ () => this.setState({sharing: null}) }
+          animation={this.state.sharing} 
+          close={() => this.setState({sharing: null})}
         />
       </App>
     );
   }
 }
 
-export default connect(state => ({
-  uid: state.uid,
-  animations: state.animations,
-}), {
-  updateAnimation
-})(Webedit);
+export default connect(
+  state => ({
+    uid: state.uid,
+    animations: state.animations,
+  }),
+  { updateAnimation }
+)(Webedit);

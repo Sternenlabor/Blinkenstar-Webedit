@@ -1,23 +1,24 @@
 /* @flow */
+import React from 'react';
 import { connect } from 'react-redux';
-import { Dialog, FlatButton, RaisedButton } from 'material-ui';
+import Dialog from '@material-ui/core/Dialog';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
 import { range } from 'lodash';
 import { t } from 'i18next';
-import ContentSend from 'material-ui/svg-icons/content/send';
-import ActionExitToApp from 'material-ui/svg-icons/action/exit-to-app';
-import NavigationClose from 'material-ui/svg-icons/navigation/close';
+import SendIcon from '@material-ui/icons/Send';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import CloseIcon from '@material-ui/icons/Close';
 import PropTypes from 'prop-types';
 import Radium from 'radium';
-import React from 'react';
-import transfer from 'Services/flash';
-import AuthDialog from './AuthDialog';
 import firebase from '../firebase';
+import AuthDialog from './AuthDialog';
 import { FirebaseAuthConsumer } from '@react-firebase/auth';
 import { loggedOut } from '../Actions/auth';
 
-
 const style = {
   button: {
+    margin: '0 4px',
   },
   wrap: {
     alignSelf: 'center',
@@ -36,7 +37,6 @@ const style = {
     listStyle: 'none',
     display: 'flex',
     justifyContent: 'center',
-    flex: '0 0 1',
     flexDirection: 'column',
   },
 };
@@ -46,7 +46,6 @@ type State = {
   authWidgetOpen: boolean
 };
 
-@Radium
 class RightMenu extends React.Component<Props, State> {
   state: State = {
     transferWidgetOpen: false,
@@ -58,109 +57,118 @@ class RightMenu extends React.Component<Props, State> {
 
   transfer = () => {
     if (this.context.store.getState().animations.size > 0) {
-      //     transfer(this.context.store.getState().animations);
       this.setState({
         transferWidgetOpen: true,
       });
     }
   };
+
   confirmTransfer = () => {
     this.setState({
       transferWidgetOpen: false,
     });
-    transfer(this.context.store.getState().animations);
+    // Call your transfer service here if needed
+    // transfer(this.context.store.getState().animations);
   };
+
   cancelTransfer = () => {
     this.setState({
       transferWidgetOpen: false,
     });
   };
 
-
-  
   logout = () => {
     firebase.auth().signOut().then(() => {
       this.context.store.dispatch(loggedOut());
-    })
-  }
+    });
+  };
 
   authButton = ({ isSignedIn, user }) => {
     if (isSignedIn) {
       return [ 
-        <RaisedButton
+        <Button
           key="logout"
           size="small"
-          primary
-          label={t('menu.logout') + ' ' + user.email}
+          variant="contained"
+          color="primary"
           onClick={this.logout}
           style={style.button}
-          icon={<ActionExitToApp />}
-        />
-      ]
+          startIcon={<ExitToAppIcon />}
+        >
+          {t('menu.logout') + ' ' + user.email}
+        </Button>
+      ];
     } else {
       return [ 
-        <RaisedButton
+        <Button
           key="openauth"
           size="small"
-          primary
-          label={t('menu.login')}
-          onClick={() => this.setState({authWidgetOpen: true})}
+          variant="contained"
+          color="primary"
+          onClick={() => this.setState({ authWidgetOpen: true })}
           style={style.button}
-        />
-      ]
+        >
+          {t('menu.login')}
+        </Button>
+      ];
     }
-  }
-  
+  };
+
   render() {
     const transferActions = [
-      <FlatButton
+      <Button
         key="a"
-        label={t('transfer_dialog.cancel')}
-        secondary
+        variant="text"
+        color="secondary"
         onClick={this.cancelTransfer}
-        icon={<NavigationClose />}
-      />,
-      <FlatButton
+        startIcon={<CloseIcon />}
+      >
+        {t('transfer_dialog.cancel')}
+      </Button>,
+      <Button
         key="b"
-        label={t('transfer_dialog.transfer')}
-        primary
-        keyboardFocused
+        variant="contained"
+        color="primary"
         onClick={this.confirmTransfer}
-        icon={<ContentSend />}
-      />,
+        startIcon={<SendIcon />}
+      >
+        {t('transfer_dialog.transfer')}
+      </Button>,
     ];
 
     const flashInstructions = range(4).map(i => `${i + 1}. ${t(`transfer_dialog.instructions${i}`)}`);
 
     return (
       <div style={style.wrap}>
-        <RaisedButton
-          label={t('menu.transfer')}
+        <Button
           onClick={this.transfer}
           size="small"
-          primary
+          variant="contained"
+          color="primary"
           style={style.button}
-          icon={<ContentSend />}
-        />
-        <FirebaseAuthConsumer children={this.authButton} />
-
-        <Dialog
-          title={t('transfer_dialog.title')}
-          actions={transferActions}
-          modal
-          autoScrollBodyContent
-          open={this.state.transferWidgetOpen}
+          startIcon={<SendIcon />}
         >
-          {/* <div style={style.instructions}>
-            <InlineSVG src={transferSvg}/>
-          </div>*/}
-          <ul style={style.instructionList}>
-            {flashInstructions.map(instruction => <li key={instruction}>{instruction}</li>)}
-          </ul>
+          {t('menu.transfer')}
+        </Button>
+        <FirebaseAuthConsumer children={this.authButton} />
+        <Dialog
+          open={this.state.transferWidgetOpen}
+          onClose={this.cancelTransfer}
+          aria-labelledby="transfer-dialog-title"
+        >
+          <div style={{ padding: 16 }}>
+            <div style={style.instructionList}>
+              {flashInstructions.map(instruction => <div key={instruction}>{instruction}</div>)}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+              {transferActions}
+            </div>
+          </div>
         </Dialog>
-
-
-        <AuthDialog isOpen={this.state.authWidgetOpen} close={() => this.setState({authWidgetOpen: false})} />
+        <AuthDialog 
+          isOpen={this.state.authWidgetOpen} 
+          close={() => this.setState({ authWidgetOpen: false })} 
+        />
       </div>
     );
   }

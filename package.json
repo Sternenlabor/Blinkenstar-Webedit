@@ -54,8 +54,8 @@
     "webpack-dev-server": "^2.4.1"
   },
   "dependencies": {
-    "@material-ui/core": "^3.9.3",
-    "@material-ui/icons": "^3.0.2",
+    "@material-ui/core": "^4.0.0",
+    "@material-ui/icons": "^4.0.0",
     "@mohayonao/web-audio-api-shim": "^0.3.0",
     "@react-firebase/auth": "^0.2.9",
     "babel-polyfill": "^6.7.4",

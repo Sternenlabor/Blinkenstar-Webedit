@@ -11,11 +11,9 @@ import './i18n';
 import './vendor';
 import { FirebaseAuthProvider, } from '@react-firebase/auth';
 import firebase from 'firebase';
+
 import reducer from 'Reducer';
 import routes from './routes';
-import { List } from 'immutable';
-import sampleAnimations from './sample_animations.json';
-import { saveAnimationsToRemote } from './db';
 
 export const store = (global.store = compose(
   applyMiddleware(reduxPromise),
@@ -45,23 +43,3 @@ document.addEventListener('DOMContentLoaded', () => {
       </StyleRoot>
     , document.querySelector('#app'));
 });
-
-window.importSamples = async function () {
-  try {
-    // Fetch the JSON file containing sample animations.
-    const samples = sampleAnimations;
-    
-    // Convert animations and use List from Immutable.js
-    const animations = Object.values(samples).map(animation => {
-      animation.animation.data = List(animation.animation.data);
-      return animation;
-    });
-    
-    const uid = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'default-user';
-    saveAnimationsToRemote(uid, animations);
-    
-    console.log('Sample animations imported successfully.');
-  } catch (error) {
-    console.error('Error importing sample animations:', error);
-  }
-};

@@ -4,10 +4,17 @@ import { connect } from 'react-redux';
 import { t } from 'i18next';
 import Radium from 'radium';
 import type { Map } from 'immutable';
+// Updated imports from @material-ui/core and @material-ui/icons
 import Button from '@material-ui/core/Button';
-import { Avatar, Divider, List, ListItem, Paper } from 'material-ui';
+import Avatar from '@material-ui/core/Avatar';
+import Divider from '@material-ui/core/Divider';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import Paper from '@material-ui/core/Paper';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import ListItemText from '@material-ui/core/ListItemText';
 import AddIcon from '@material-ui/icons/Add';
-import ImagePhotoLibrary from 'material-ui/svg-icons/image/photo-library';
+import PhotoLibraryIcon from '@material-ui/icons/PhotoLibrary';
 import AnimationInMenu from './AnimationInMenu';
 import { newAnimation, addAnimation, removeAnimation, reset } from 'Actions/animations';
 import type { Animation } from 'Reducer';
@@ -18,6 +25,11 @@ type Props = {
   addAnimation: typeof addAnimation,
   removeAnimation: typeof removeAnimation,
   reset: typeof reset,
+  navigate: Function,
+  active?: string,
+  admin?: boolean,
+  uid?: string,
+  currentAnimationId?: string,
 };
 
 const style = {
@@ -30,27 +42,25 @@ const style = {
     width: '100%',
   },
   reset: {
-    width: '100%', 
-    marginTop: '30px', 
-    minHeight: '34px', 
+    width: '100%',
+    marginTop: '30px',
+    minHeight: '34px',
     color: '#da1616'
   }
 };
 
 class Menu extends React.Component<Props> {
-
   constructor(props) {
     super(props);
     const { animations } = this.props;
-    var animation;
-    if(animations.toList().size == 0) {
+    if (animations.toList().size === 0) {
       this.props.addAnimation(newAnimation('text', INITIAL_ANIMATION_TEXT));
     }
   }
 
-  handleRemove = (animationId) => (
-    this.props.removeAnimation(animationId, this.props.uid)
-  )
+  handleRemove = (animationId) => {
+    this.props.removeAnimation(animationId, this.props.uid);
+  }
   
   handleReset = () => {
     if (confirm(t('menu.newWarning'))) {
@@ -69,40 +79,54 @@ class Menu extends React.Component<Props> {
   };
 
   render() {
-    const { animations } = this.props;
+    const { animations, active, admin } = this.props;
 
     return (
       <Paper style={style.wrap}>
         <List style={style.list}>
-          <ListItem
-            leftAvatar={<Avatar icon={<AddIcon />} />}
-            primaryText={t('menu.addText')}
-            onClick={this.addTextAnimation}
-          />
-          <ListItem
-            leftAvatar={<Avatar icon={<AddIcon />} />}
-            primaryText={t('menu.addAnimation')}
-            onClick={this.addPixelAnimation}
-          />
-          <ListItem
-            leftAvatar={<Avatar icon={<ImagePhotoLibrary />} />}
-            primaryText={t('menu.gallery')}
-            style={(this.props.active === 'gallery') ? { backgroundColor: '#e0e0e0' } : {}}
-            onClick={() => this.props.navigate('/gallery')}
-          />
-          {this.props.admin && 
-          <ListItem
-            leftAvatar={<Avatar icon={<ImagePhotoLibrary />} />}
-            primaryText={t('menu.admin_gallery')}
-            style={(this.props.active === 'admingallery') ? { backgroundColor: '#e0e0e0' } : {}}
-            onClick={() => this.props.navigate('/gallery/admin')}
-          />
+          <ListItem button onClick={this.addTextAnimation}>
+            <ListItemAvatar>
+              <Avatar>
+                <AddIcon />
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText primary={t('menu.addText')} />
+          </ListItem>
+          <ListItem button onClick={this.addPixelAnimation}>
+            <ListItemAvatar>
+              <Avatar>
+                <AddIcon />
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText primary={t('menu.addAnimation')} />
+          </ListItem>
+          <ListItem button onClick={() => this.props.navigate('/gallery')}
+            style={(active === 'gallery') ? { backgroundColor: '#e0e0e0' } : {}}
+          >
+            <ListItemAvatar>
+              <Avatar>
+                <PhotoLibraryIcon />
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText primary={t('menu.gallery')} />
+          </ListItem>
+          {admin && 
+            <ListItem button onClick={() => this.props.navigate('/gallery/admin')}
+              style={(active === 'admingallery') ? { backgroundColor: '#e0e0e0' } : {}}
+            >
+              <ListItemAvatar>
+                <Avatar>
+                  <PhotoLibraryIcon />
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText primary={t('menu.admin_gallery')} />
+            </ListItem>
           }
           <Divider />
           {animations
             .map(animation => (
               <AnimationInMenu
-                selected={this.props.active === 'webedit' && animation.id === this.props.currentAnimationId}
+                selected={active === 'webedit' && animation.id === this.props.currentAnimationId}
                 key={animation.id}
                 animation={animation}
                 onClick={() => { this.props.navigate(`/${animation.id}`) }}
@@ -113,13 +137,13 @@ class Menu extends React.Component<Props> {
             .toArray()}
           <Divider />
           { !this.props.uid && 
-          <Button
-             size="small"
-             style={style.reset}
-             onClick={this.handleReset}
-           >
-            { t('menu.clear_library') }
-           </Button>
+            <Button
+              size="small"
+              style={style.reset}
+              onClick={this.handleReset}
+            >
+              { t('menu.clear_library') }
+            </Button>
           }
         </List>
       </Paper>
