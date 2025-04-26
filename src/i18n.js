@@ -1,26 +1,21 @@
-// @flow
-import i18n from 'i18next';
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
+import en from './i18n/en.json'
+import de from './i18n/de.json'
 
-// $FlowFixMe
-i18n.t = i18n.t.bind(i18n);
+i18n.use(initReactI18next) // ← hooks up the React plugin (adds hasLoadedNamespace, etc.)
+    .init({
+        resources: {
+            en: { translation: en },
+            de: { translation: de }
+        },
+        lng: 'en',
+        fallbackLng: 'en',
+        debug: __DEV__,
+        ns: ['translation'],
+        defaultNS: 'translation',
+        interpolation: { escapeValue: false },
+        react: { useSuspense: false }
+    })
 
-if (__DEV__) {
-  global.i18n = i18n;
-}
-
-i18n.init({
-  debug: __DEV__,
-  initImmediate: false,
-  lng: 'en',
-  supportedLngs: ['en', 'de'],
-  interpolation: {
-    escapeValue: false,
-    nestingPrefix: '$t(',
-    nestingSuffix: ')',
-  },
-});
-
-// $FlowFixMe
-i18n.addResourceBundle('en', 'translation', require('./i18n/en.json'), true);
-// $FlowFixMe
-i18n.addResourceBundle('de', 'translation', require('./i18n/de.json'), true);
+export default i18n

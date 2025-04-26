@@ -1,161 +1,152 @@
 /* @flow */
-import React from 'react';
-import { connect } from 'react-redux';
-import { t } from 'i18next';
-import Radium from 'radium';
-import type { Map } from 'immutable';
-// Updated imports from @material-ui/core and @material-ui/icons
-import Button from '@material-ui/core/Button';
-import Avatar from '@material-ui/core/Avatar';
-import Divider from '@material-ui/core/Divider';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import Paper from '@material-ui/core/Paper';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import ListItemText from '@material-ui/core/ListItemText';
-import AddIcon from '@material-ui/icons/Add';
-import PhotoLibraryIcon from '@material-ui/icons/PhotoLibrary';
-import AnimationInMenu from './AnimationInMenu';
-import { newAnimation, addAnimation, removeAnimation, reset } from 'Actions/animations';
-import type { Animation } from 'Reducer';
-import { INITIAL_ANIMATION_TEXT } from '../variables';
+import React, { useEffect, useCallback, type Node } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { Paper, List, ListItem, ListItemAvatar, ListItemText, Divider, Button, Avatar } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary'
+import AnimationInMenu from './AnimationInMenu'
+import { newAnimation, addAnimation, removeAnimation, reset } from 'Actions/animations'
+import { INITIAL_ANIMATION_TEXT } from '../variables'
+import type { Animation } from 'Reducer'
+import { border } from '@mui/system'
 
 type Props = {
-  animations?: Map<string, Animation>,
-  addAnimation: typeof addAnimation,
-  removeAnimation: typeof removeAnimation,
-  reset: typeof reset,
-  navigate: Function,
-  active?: string,
-  admin?: boolean,
-  uid?: string,
-  currentAnimationId?: string,
-};
-
-const style = {
-  wrap: {
-    alignItems: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  list: {
-    width: '100%',
-  },
-  reset: {
-    width: '100%',
-    marginTop: '30px',
-    minHeight: '34px',
-    color: '#da1616'
-  }
-};
-
-class Menu extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-    const { animations } = this.props;
-    if (animations.toList().size === 0) {
-      this.props.addAnimation(newAnimation('text', INITIAL_ANIMATION_TEXT));
-    }
-  }
-
-  handleRemove = (animationId) => {
-    this.props.removeAnimation(animationId, this.props.uid);
-  }
-  
-  handleReset = () => {
-    if (confirm(t('menu.newWarning'))) {
-      this.props.reset();
-      this.props.navigate('/');
-    }
-  };
-
-  addTextAnimation = () => {
-    const { payload } = this.props.addAnimation(newAnimation('text'));
-    this.props.navigate(`/${payload.id}`);
-  };
-  addPixelAnimation = () => {
-    const { payload } = this.props.addAnimation(newAnimation('pixel'));
-    this.props.navigate(`/${payload.id}`);
-  };
-
-  render() {
-    const { animations, active, admin } = this.props;
-
-    return (
-      <Paper style={style.wrap}>
-        <List style={style.list}>
-          <ListItem button onClick={this.addTextAnimation}>
-            <ListItemAvatar>
-              <Avatar>
-                <AddIcon />
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText primary={t('menu.addText')} />
-          </ListItem>
-          <ListItem button onClick={this.addPixelAnimation}>
-            <ListItemAvatar>
-              <Avatar>
-                <AddIcon />
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText primary={t('menu.addAnimation')} />
-          </ListItem>
-          <ListItem button onClick={() => this.props.navigate('/gallery')}
-            style={(active === 'gallery') ? { backgroundColor: '#e0e0e0' } : {}}
-          >
-            <ListItemAvatar>
-              <Avatar>
-                <PhotoLibraryIcon />
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText primary={t('menu.gallery')} />
-          </ListItem>
-          {admin && 
-            <ListItem button onClick={() => this.props.navigate('/gallery/admin')}
-              style={(active === 'admingallery') ? { backgroundColor: '#e0e0e0' } : {}}
-            >
-              <ListItemAvatar>
-                <Avatar>
-                  <PhotoLibraryIcon />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText primary={t('menu.admin_gallery')} />
-            </ListItem>
-          }
-          <Divider />
-          {animations
-            .map(animation => (
-              <AnimationInMenu
-                selected={active === 'webedit' && animation.id === this.props.currentAnimationId}
-                key={animation.id}
-                animation={animation}
-                onClick={() => { this.props.navigate(`/${animation.id}`) }}
-                onRemove={this.handleRemove}
-              />
-            ))
-            .toList()
-            .toArray()}
-          <Divider />
-          { !this.props.uid && 
-            <Button
-              size="small"
-              style={style.reset}
-              onClick={this.handleReset}
-            >
-              { t('menu.clear_library') }
-            </Button>
-          }
-        </List>
-      </Paper>
-    );
-  }
+    active: string,
+    currentAnimationId: string
 }
 
-export default connect(
-  state => ({
-    uid: state.uid,
-    admin: state.admin,
-    animations: state.animations,
-  }),
-  { addAnimation, removeAnimation, reset }
-)(Radium(Menu));
+const styles = {
+    wrap: { alignItems: 'center', display: 'flex', flexDirection: 'column' },
+    list: { width: '100%' },
+    listItem: {
+        backgroundColor: 'transparent',
+        border: 'none'
+    },
+    listItemActive: {
+        backgroundColor: '#E0E0E0',
+        border: 'none'
+    },
+    reset: { width: '100%', marginTop: '30px', minHeight: '34px', color: '#da1616' }
+}
+
+export default function Menu({ active, currentAnimationId }: Props): Node {
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const { t } = useTranslation()
+    const animations = useSelector((state) => state.animations)
+    const uid = useSelector((state) => state.uid)
+    const admin = useSelector((state) => state.admin)
+
+    // Ensure there's at least one animation on startup
+    useEffect(() => {
+        if (animations.size === 0) {
+            const anim = newAnimation('text', INITIAL_ANIMATION_TEXT)
+            dispatch(addAnimation(anim, uid))
+        }
+    }, [animations.size, dispatch, uid])
+
+    const handleRemove = useCallback(
+        (animationId: string) => {
+            dispatch(removeAnimation(animationId, uid))
+        },
+        [dispatch, uid]
+    )
+
+    const handleReset = useCallback(() => {
+        if (window.confirm(t('menu.newWarning'))) {
+            dispatch(reset())
+            navigate('/')
+        }
+    }, [dispatch, navigate, t])
+
+    const addTextAnimation = useCallback(() => {
+        const anim = newAnimation('text')
+        dispatch(addAnimation(anim, uid))
+        navigate(`/${anim.id}`)
+    }, [dispatch, navigate, uid])
+
+    const addPixelAnimation = useCallback(() => {
+        const anim = newAnimation('pixel')
+        dispatch(addAnimation(anim, uid))
+        navigate(`/${anim.id}`)
+    }, [dispatch, navigate, uid])
+
+    return (
+        <Paper style={styles.wrap} elevation={0}>
+            <List style={styles.list}>
+                <ListItem component="button" onClick={addTextAnimation} style={styles.listItem}>
+                    <ListItemAvatar>
+                        <Avatar>
+                            <AddIcon />
+                        </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary={t('menu.addText')} />
+                </ListItem>
+
+                <ListItem component="button" onClick={addPixelAnimation} style={styles.listItem}>
+                    <ListItemAvatar>
+                        <Avatar>
+                            <AddIcon />
+                        </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary={t('menu.addAnimation')} />
+                </ListItem>
+
+                <ListItem
+                    component="button"
+                    onClick={() => navigate('/gallery')}
+                    style={active === 'gallery' ? styles.listItemActive : styles.listItem}
+                >
+                    <ListItemAvatar>
+                        <Avatar>
+                            <PhotoLibraryIcon />
+                        </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary={t('menu.gallery')} />
+                </ListItem>
+
+                {admin && (
+                    <ListItem
+                        component="button"
+                        onClick={() => navigate('/gallery/admin')}
+                        style={active === 'admingallery' ? styles.listItemActive : styles.listItem}
+                    >
+                        <ListItemAvatar>
+                            <Avatar>
+                                <PhotoLibraryIcon />
+                            </Avatar>
+                        </ListItemAvatar>
+                        <ListItemText primary={t('menu.admin_gallery')} />
+                    </ListItem>
+                )}
+
+                <Divider />
+
+                {animations
+                    .valueSeq()
+                    .toArray()
+                    .map((anim: Animation) => (
+                        <>
+                            <AnimationInMenu
+                                key={anim.id}
+                                animation={anim}
+                                selected={active === 'webedit' && anim.id === currentAnimationId}
+                                onClick={() => navigate(`/${anim.id}`)}
+                                onRemove={handleRemove}
+                            />
+
+                            <Divider />
+                        </>
+                    ))}
+
+                {!uid && (
+                    <Button size="small" style={styles.reset} onClick={handleReset}>
+                        {t('menu.clear_library')}
+                    </Button>
+                )}
+            </List>
+        </Paper>
+    )
+}

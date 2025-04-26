@@ -1,58 +1,42 @@
 /* @flow */
-import { createAction } from 'redux-actions';
-import UUID from 'uuid-js';
-import type { Animation } from 'Reducer';
-import { DB, mapAnimationToLocal, mapAnimationToRemote } from '../db';
+import { createAction } from 'redux-actions'
+import UUID from 'uuid-js'
+import type { Animation } from 'Reducer'
+import { fetchPublicGallery, publishToGallery, unpublishFromGallery, fetchAdminGalleryRemote, reviewAnimationRemote } from '../db'
 
-
-// Public Gallery
+/** Load public gallery */
 export const loadGallery = createAction('UPSERT_GALLERY_ANIMATIONS', async () => {
-  const snapshot = await DB.collection('publicAnimations').get();
-  return snapshot.docs.map(a => mapAnimationToLocal(a.data()));
+    return await fetchPublicGallery()
 })
 
-export const addAnimationToGallery = createAction('UPSERT_GALLERY_ANIMATIONS', (animation: Animation) => {
-  const originalId = animation.id;
-  const clone = Object.assign({}, ...animation, { 
-    id: UUID.create().toString(), 
-    creationDate: Math.floor(new Date() / 1000),
-    modifiedAt: null,
-    originalId
-  });
-  
-  DB.collection('publicAnimations').doc(clone.id).set(mapAnimationToRemote(clone));
-  return [clone];
-});
+/** Publish one to public gallery */
+export const addAnimationToGallery = createAction('UPSERT_GALLERY_ANIMATIONS', async (animation: Animation) => {
+    const clone: Animation = {
+        ...animation,
+        id: UUID.create().toString(),
+        creationDate: Math.floor(Date.now() / 1000),
+        modifiedAt: null,
+        originalId: animation.id
+    }
+    await publishToGallery(clone)
+    return [clone]
+})
 
-export const removeAnimationFromGallery = createAction('REMOVE_GALLERY_ANIMATION', (animation: Animation) => {
-  DB.collection('publicAnimations').doc(animation.id).delete();
-  return animation.id;
-});
-export const resetGallery = createAction('RESET_GALLERY');
+/** Unpublish one */
+export const removeAnimationFromGallery = createAction('REMOVE_GALLERY_ANIMATION', async (animation: Animation) => {
+    await unpublishFromGallery(animation.id)
+    return animation.id
+})
 
+export const resetGallery = createAction('RESET_GALLERY')
 
-// Admin Gallery 
+/** Load all users’ submissions for admin */
 export const loadAdminGallery = createAction('UPSERT_ADMIN_GALLERY_ANIMATIONS', async () => {
-  const users = await DB.collection('users').get();
-  return await Promise.all(
-    users.docs.map(user => 
-      user.ref.collection('animations').get().then(aniSnapshot => 
-        aniSnapshot.docs.map(animation => 
-          mapAnimationToLocal(Object.assign(animation.data(), { author: user.id }))
-        )
-      )
-    )
-  ).then(animationLists => (
-    animationLists.reduce((acc, cur) => acc.concat(cur), [])
-  ));
-});
+    return await fetchAdminGalleryRemote()
+})
 
-export const reviewAnimation = createAction('UPSERT_ADMIN_GALLERY_ANIMATIONS', (animation: Animation, when) => {
-  const updated = Object.assign({}, animation, { reviewedAt: when });
-  DB.collection('users').doc(animation.author)
-    .collection('animations').doc(animation.id).set({
-      reviewedAt: updated.reviewedAt,
-    }, { merge: true });
-  return [updated];
-});
-
+/** Mark reviewed/unreviewed */
+export const reviewAnimation = createAction('UPSERT_ADMIN_GALLERY_ANIMATIONS', async (animation: Animation, reviewedAt: ?number) => {
+    await reviewAnimationRemote(animation.author || '', animation.id, reviewedAt == null ? null : reviewedAt)
+    return [{ ...animation, reviewedAt }]
+})

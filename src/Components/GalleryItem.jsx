@@ -1,120 +1,92 @@
 /* @flow */
-import React from 'react';
-import Frame from './Frame';
-import AnimationPreview from './AnimationPreview';
-import { getFrameColumns } from '../utils';
-import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
-import AddIcon from '@material-ui/icons/Add';
-import RemoveIcon from '@material-ui/icons/Remove';
+import React, { useState, type Node, useCallback } from 'react'
+import Frame from './Frame'
+import AnimationPreview from './AnimationPreview'
+import { getFrameColumns } from '../utils'
+import Button from '@mui/material/Button'
+import Tooltip from '@mui/material/Tooltip'
+import AddIcon from '@mui/icons-material/Add'
+import RemoveIcon from '@mui/icons-material/Remove'
 
 const style = {
-  galleryItem: {
-    alignItems: 'center',
-    margin: '15px',
-  },
-  title: {
-    fontFamily: 'sans-serif',
-    fontSize: '12px',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    marginBottom: '4px',
-    width: '100px',
-  },
-  frame: {
-    boxShadow: '7px 6px 2px lightgrey',
-  },
-  overlay: {
-    position: 'absolute',
-    left: '50%'
-
-  },
-  actionButton: {
-    marginTop: '10px',
-    width: '100%',
-  }
-};
+    galleryItem: { alignItems: 'center', margin: '15px', position: 'relative' },
+    title: {
+        fontFamily: 'sans-serif',
+        fontSize: '12px',
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+        marginBottom: '4px',
+        width: '100px'
+    },
+    frame: { boxShadow: '7px 6px 2px lightgrey' },
+    actionButton: { marginTop: '10px', width: '100%' }
+}
 
 const actionIcons = {
-  add: <AddIcon />,
-  remove: <RemoveIcon />
+    add: <AddIcon />,
+    remove: <RemoveIcon />
 }
 
 type Props = {
-  animation: Animation,
-  clickIcon: string,
-  clickLabel: string,
-  onClick?: (animations: Array<Animation>) => void
-};
-
-type State = {
-  playing: boolean,
-};
-
-class GalleryItem extends React.Component<Props, State> {
-  state: State = {
-    playing: false,
-  };
-  static defaultProps = {
-    clickIcon: 'add',
-    clickLabel: '',
-  };
-
-  shouldComponentUpdate(nextProps, nextState){
-    const update = (this.state.playing !== nextState.playing
-      || this.props.onClick !== nextProps.onClick
-      || this.props.animation !== nextProps.animation
-    );
-    return update
-  }
-
-  render() {
-    const { animation } = this.props;
-    return (
-      <div 
-        style={style.galleryItem}
-        onMouseEnter={() => this.setState({playing: true})}
-        onMouseLeave={() => this.setState({playing: false})}
-      >
-        <div style={style.title} title={animation.name} alt={animation.name}>
-          { animation.name ? <b>{animation.name}</b> : <i>Untitled</i> } 
-        </div>
-        { !this.state.playing && 
-        <Frame
-          columns={getFrameColumns(animation, animation.animation.currentFrame)}
-          onClick={() => this.setState({playing: true})}
-          size={this.props.size}
-          offColor="black"
-          style={{...style.frame, opacity: 0.5 }}
-        />
-        }
-
-        { this.state.playing && 
-        <AnimationPreview 
-          animation={this.props.animation} 
-          key={this.props.animation.id}
-          size={this.props.size}
-          style={style.frame}
-          offColor="black"
-          onClick={() => this.setState({playing: false})}
-        />
-        }
-        <Button 
-          size="small" 
-          variant="outlined"
-          color="primary" 
-          onClick={() => { this.props.onClick(animation) }}
-          style={style.actionButton}
-        >
-          { actionIcons[this.props.clickIcon] }
-          { this.props.clickLabel }
-        </Button>
-      </div>
-    );
-  }
+    animation: Animation,
+    size?: string,
+    offColor?: string,
+    clickIcon?: 'add' | 'remove',
+    clickLabel?: string,
+    onClick?: (Animation) => mixed
 }
 
-export default GalleryItem;
+function GalleryItem({ animation, size = 'gallery', offColor = 'black', clickIcon = 'add', clickLabel = '', onClick }: Props): Node {
+    const [playing, setPlaying] = useState(false)
 
+    const enter = useCallback(() => setPlaying(true), [])
+    const leave = useCallback(() => setPlaying(false), [])
 
+    const handleClick = useCallback(() => {
+        if (onClick) onClick(animation)
+        setPlaying(false)
+    }, [onClick, animation])
+
+    const frameCols = getFrameColumns(animation, animation.animation.currentFrame)
+
+    return (
+        <div style={style.galleryItem} onMouseEnter={enter} onMouseLeave={leave}>
+            <div style={style.title} title={animation.name || ''}>
+                {animation.name ? <b>{animation.name}</b> : <em>Untitled</em>}
+            </div>
+
+            {!playing ? (
+                <Frame
+                    columns={frameCols}
+                    onClick={() => setPlaying(true)}
+                    size={size}
+                    offColor={offColor}
+                    style={{ ...style.frame, opacity: 0.5 }}
+                />
+            ) : (
+                <AnimationPreview
+                    animation={animation}
+                    key={animation.id}
+                    size={size}
+                    style={style.frame}
+                    offColor={offColor}
+                    onClick={handleClick}
+                />
+            )}
+
+            <Button
+                size="small"
+                variant="outlined"
+                color="primary"
+                onClick={handleClick}
+                style={style.actionButton}
+                startIcon={actionIcons[clickIcon]}
+            >
+                {clickLabel}
+            </Button>
+        </div>
+    )
+}
+
+export default React.memo<Props>(GalleryItem)

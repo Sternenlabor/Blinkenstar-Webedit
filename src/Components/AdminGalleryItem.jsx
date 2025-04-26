@@ -1,158 +1,114 @@
 /* @flow */
-import React from 'react';
-import Frame from './Frame';
-import AnimationPreview from './AnimationPreview';
-import { getFrameColumns } from '../utils';
-import Fab from '@material-ui/core/Fab';
-import Tooltip from '@material-ui/core/Tooltip';
-import AddIcon from '@material-ui/icons/Add';
-import RemoveIcon from '@material-ui/icons/Remove';
-import ArchiveIcon from '@material-ui/icons/Archive';
-
+import React, { useEffect, type Node } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import App from './App'
+import Gallery from './Gallery'
+import AdminGalleryItem from './AdminGalleryItem'
+import { loadGallery, loadAdminGallery, addAnimationToGallery, removeAnimationFromGallery, reviewAnimation } from '../Actions/gallery'
+import type { Animation } from 'Reducer'
+import { Map } from 'immutable'
 
 const style = {
-  galleryItem: {
-    padding: '20px',
-    margin: '20px',
-    borderRadius: '6px',
-    boxShadow: '2px 2px 5px lightgrey',
-  },
-  title: {
-    fontFamily: 'sans-serif',
-    fontSize: '12px',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    marginBottom: '16px',
-    marginTop: '-6px',
-    width: '100px',
-  },
-  bottomInfo: {
-    marginTop: '1px',
-    marginBottom: '16px',
-    textAlign: 'center',
-    fontFamily: 'monospace',
-    fontSize: '10px',
-    color: '#999',
-  },
-  topInfo: {
-    marginTop: '-4px',
-    fontFamily: 'monospace',
-    fontSize: '10px',
-    color: '#999',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    width: '100px',
-  }
-};
-
-const actionIcons = {
-  add: <AddIcon />,
-  remove: <RemoveIcon />,
-  archive: <ArchiveIcon />,
+    canvas: {
+        display: 'flex',
+        width: '100%',
+        height: '100%',
+        padding: '20px'
+    },
+    adminCanvas: { width: '50%', padding: '20px', margin: '20px' },
+    publicCanvas: { width: '50%', padding: '20px', margin: '20px' },
+    adminGallery: { display: 'flex', flexWrap: 'wrap' },
+    publicFrame: {
+        border: '1px solid #d5d5d5',
+        backgroundColor: '#f9f9f9',
+        borderRadius: '3px',
+        padding: '15px'
+    }
 }
 
-const tooltips = { 
-  add: 'Copy animation to public gallery',
-  remove: 'Remove from public gallery',
-  archive: 'Mark as reviewed without adding to gallery',
-}
+type Props = {}
 
-type Props = {
-  animation: Animation,
-  primaryAction: string,
-  secondaryAction: string
-};
+function AdminGallery(): Node {
+    const { t } = useTranslation()
 
-type State = {
-  preview: boolean,
-};
+    const uid: ?string = useSelector((state) => state.uid)
+    const admin: boolean = useSelector((state) => state.admin)
+    const gallery: Map<string, Animation> = useSelector((state) => state.gallery)
+    const adminGallery: Map<string, Animation> = useSelector((state) => state.adminGallery)
 
-class AdminGalleryItem extends React.Component<Props, State> {
-  state: State = {
-    preview: false,
-  };
-  static defaultProps = {
-    primaryAction: 'add',
-    secondaryAction: 'archive',
-  };
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
 
-  shouldComponentUpdate(nextProps, nextState){
-    return (this.props.animation !== nextProps.animation
-      || this.props.primaryAction !== nextProps.primaryAction
-      || this.props.handlePrimary !== nextProps.handlePrimary
-      || this.props.secondaryAction !== nextProps.secondaryAction
-      || this.props.handleSecondary !== nextProps.handleSecondary
-      || this.props.buttonsDisabled !== nextProps.buttonsDisabled
-      || this.state.preview !== nextState.preview
-    );
-  }
+    useEffect(() => {
+        if (uid != null) {
+            if (admin) {
+                dispatch(loadAdminGallery())
+                dispatch(loadGallery())
+            } else {
+                navigate('/gallery')
+            }
+        }
+    }, [uid, admin, dispatch, navigate])
 
-  render() {
-    const { animation } = this.props;
-    const dateFmt = (dt) => dt.toISOString().slice(0, 16).replace('T', ' ');
+    const originalIds: string[] = gallery
+        .valueSeq()
+        .map((a) => a.originalId)
+        .toJS()
+
+    const pending = adminGallery
+        .valueSeq()
+        .filter((a) => !a.originalId && (a.reviewedAt || -1) < (a.modifiedAt || a.creationDate))
+        .sortBy((a) => a.modifiedAt || a.creationDate)
+        .reverse()
+
+    const publicItems = gallery
+        .valueSeq()
+        .sortBy((a) => a.creationDate)
+        .reverse()
+
+    const handleAdd = (anim: Animation) => {
+        dispatch(addAnimationToGallery(anim))
+        dispatch(reviewAnimation(anim, Date.now()))
+    }
+
+    const handleRemove = (anim: Animation) => {
+        dispatch(removeAnimationFromGallery(anim))
+        const original = adminGallery.get(anim.originalId)
+        if (original) dispatch(reviewAnimation(original, null))
+    }
+
+    const handleArchive = (anim: Animation) => {
+        dispatch(reviewAnimation(anim, Date.now()))
+    }
 
     return (
-      <div 
-        style={style.galleryItem}
-        onMouseEnter={() => this.setState({preview: true})}
-        onMouseLeave={() => this.setState({preview: false})}
-      >
-        <div style={style.title} title={animation.name} alt={animation.name}>
-          { animation.name ? <b>{animation.name}</b> : <i>Untitled</i> } 
+        <div style={style.canvas}>
+            <div style={style.adminCanvas}>
+                <h2>{t('admin_gallery.review_title', 'User Animations for Review')}:</h2>
+                <div style={style.adminGallery}>
+                    {pending.map((anim) => (
+                        <AdminGalleryItem
+                            key={anim.id}
+                            animation={anim}
+                            buttonsDisabled={originalIds.includes(anim.id)}
+                            handlePrimary={handleAdd}
+                            handleSecondary={handleArchive}
+                            primaryAction="add"
+                            secondaryAction="archive"
+                        />
+                    ))}
+                </div>
+            </div>
+            <div style={style.publicCanvas}>
+                <h2>{t('admin_gallery.public_title', 'Public Gallery')}</h2>
+                <div style={style.publicFrame}>
+                    <Gallery gallery={publicItems} clickLabel={t('admin_gallery.unpublish')} clickIcon="remove" onClick={handleRemove} />
+                </div>
+            </div>
         </div>
-        <div style={style.topInfo} alt={animation.text} title={animation.text}>
-          {animation.type}: 
-          {animation.type === 'pixel' && animation.animation.frames} 
-          {animation.type === 'text' && animation.text } 
-        </div>
-        { !this.state.preview && 
-        <Frame
-          columns={getFrameColumns(animation, animation.animation.currentFrame)}
-          size='gallery'
-          offColor="black"
-          style={{opacity: 0.5 }}
-        />
-        }
-
-        { this.state.preview && 
-        <AnimationPreview 
-          animation={animation} 
-          key={animation.id}
-          size="gallery" 
-          offColor="black"
-        />
-        }
-        <div style={style.bottomInfo}>{dateFmt(new Date(animation.creationDate * 1000))} </div>
-        { this.props.handlePrimary &&
-          <Tooltip title={tooltips[this.props.primaryAction]}>
-            <Fab 
-              size="small" 
-              color="primary" 
-              onClick={() => { this.props.handlePrimary(animation) }}
-              disabled={this.props.buttonsDisabled}
-            >
-              { actionIcons[this.props.primaryAction] }
-            </Fab>
-          </Tooltip>
-        }
-        { this.props.handleSecondary &&
-          <Tooltip title={tooltips[this.props.secondaryAction]}>
-            <Fab 
-              size="small" 
-              color="secondary" 
-              onClick={() => { this.props.handleSecondary(animation) }}
-              disabled={this.props.buttonsDisabled}
-              style={{ right: '-23px'}}
-            >
-              { actionIcons[this.props.secondaryAction] }
-            </Fab>
-          </Tooltip>
-        }
-      </div>
-    );
-  }
+    )
 }
 
-export default AdminGalleryItem;
+export default AdminGallery

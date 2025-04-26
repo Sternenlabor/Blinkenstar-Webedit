@@ -1,14 +1,23 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-  <head> 
-    <meta charset="UTF-8"> 
-    <meta name="viewport" content="initial-scale=1, width=device-width">
-    <title>Blinkenstar Web-Editor</title>
-    <!-- uncomment next line for remote debugging using weinre, see https://stackoverflow.com/questions/15956974/setting-up-weinre-remote-debugging -->
-    <!-- <script src = "http://10.0.0.13:8081/target/target-script-min.js#anonymous"></script> -->
-    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@400;500;700&display=swap" rel="stylesheet">
-  </head>
-  <body style="margin:0;">
-    <div id="app"></div>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <title>Blinkenstar Web-Editor</title>
+        <!-- uncomment next line for remote debugging using weinre, see https://stackoverflow.com/questions/15956974/setting-up-weinre-remote-debugging -->
+        <!-- <script src = "http://10.0.0.13:8081/target/target-script-min.js#anonymous"></script> -->
+        <link href="https://fonts.googleapis.com/css2?family=Jura:wght@400;500;700&display=swap" rel="stylesheet" />
+        <style>
+            html,
+            body,
+            #app,
+            #app > div {
+                height: '100%';
+                width: '100%';
+            }
+        </style>
+    </head>
+    <body style="margin: 0">
+        <div id="app"></div>
+    </body>
 </html>
