@@ -1,66 +1,40 @@
 /* @flow */
-import React from 'react';
-import { connect } from 'react-redux';
-import App from './App';
-import TextEditor from './TextEditor';
-import PixelEditor from './PixelEditor';
-import ShareWidget from './ShareWidget';
-import type { Animation } from '../Reducer';
-import { updateAnimation } from 'Actions/animations';
+import React, { useState, useCallback, type Node } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { useParams } from 'react-router-dom'
+import App from './App'
+import TextEditor from './TextEditor'
+import PixelEditor from './PixelEditor'
+import ShareWidget from './ShareWidget'
+import { updateAnimation } from 'Actions/animations'
+import type { Animation } from '../Reducer'
 
-type Props = {
-  uid?: string,
-  animations: any,
-  routeParams: object,
-  updateAnimation: typeof updateAnimation
-};
+type Params = { animationId?: string }
 
-type State = {
-  sharing?: Animation,
-};
+export default function Webedit(): Node {
+    const dispatch = useDispatch()
+    const animations = useSelector((state) => state.animations)
+    const uid = useSelector((state) => state.uid)
+    const { animationId } = useParams<Params>()
+    const [sharing, setSharing] = useState<?Animation>(null)
 
-class Webedit extends React.Component<Props, State> {
-  state: State = {
-    sharing: null
-  };
+    const handleUpdate = useCallback((anim: Animation) => dispatch(updateAnimation(anim, uid)), [dispatch, uid])
 
-  handleUpdate = (animation) => (
-    this.props.updateAnimation(animation, this.props.uid)
-  );
+    const handleShare = useCallback((anim: Animation) => setSharing(anim), [])
 
-  handleShare = (animation) => {
-    this.setState({ sharing: animation });
-  };
-
-  render() {
-    const { animations } = this.props;
-    const id = this.props.routeParams['animationId'];
-    const animation = (id) ? animations.get(id) : animations.first();
-    let element;
-    if (!animation) {
-      element = <div />;
-    } else if (animation.type === 'text') {
-      element = <TextEditor animation={animation} onUpdate={this.handleUpdate} onShare={this.handleShare} />;
-    } else if (animation.type === 'pixel') {
-      element = <PixelEditor animation={animation} onUpdate={this.handleUpdate} onShare={this.handleShare} />;
-    }
+    const animation: ?Animation = animationId ? animations.get(animationId) : animations.first()
 
     return (
-      <App activeView="webedit" currentAnimationId={id} {...this.props}>
-        { element }
-        <ShareWidget 
-          animation={this.state.sharing} 
-          close={() => this.setState({sharing: null})}
-        />
-      </App>
-    );
-  }
-}
+        <>
+            {animation ? (
+                animation.type === 'text' ? (
+                    <TextEditor animation={animation} onUpdate={handleUpdate} onShare={handleShare} />
+                ) : (
+                    <PixelEditor animation={animation} onUpdate={handleUpdate} onShare={handleShare} />
+                )
+            ) : null}
 
-export default connect(
-  state => ({
-    uid: state.uid,
-    animations: state.animations,
-  }),
-  { updateAnimation }
-)(Webedit);
+            <ShareWidget animation={sharing} close={() => setSharing(null)} />
+        </>
+    )
+}

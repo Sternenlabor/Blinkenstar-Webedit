@@ -1,46 +1,68 @@
-# webedit-react  Blinkenstar WebInterface
+# webedit-react – Blinkenstar WebInterface
 
 [![Build Status](https://travis-ci.org/blinkenstar/webedit-react.svg?branch=master)](https://travis-ci.org/blinkenstar/webedit-react)
 
-[blinkenstar.sternenlabor.de](http://blinkenstar.sternenlabor.de/)
-
+Visit the deployed application at: [http://your-domain.com/webedit-react](http://your-domain.com/webedit-react)
 
 ## Quickstart
 
-#### System Setup
+#### Frontend Setup
 
-* Install NodeJS v8: https://nodejs.org/en/download/
+* Install NodeJS v8 or higher: https://nodejs.org/en/download/
 * Install Yarn: https://yarnpkg.com
 
-#### Getting started with the code
+#### Getting Started with the Code
 
-Clone the Git repository, and change into the project directory.
+Clone the Git repository, then run the following commands:
 
-    # Install dependencies and build the project
     yarn
     yarn build
 
-    # Run development server
+To run the development server:
+
     yarn dev
 
-Now you can access the web interface via http://127.0.0.1:8080
+You can now access the web interface at [http://127.0.0.1:8080](http://127.0.0.1:8080).
 
+#### Backend Setup (PHP & MySQL)
+
+This project now uses a REST API built in PHP with MySQL on a standard LAMP stack.
+
+1. **Database Initialization:**  
+   Execute the provided SQL statements (see the database documentation) to create the following tables:  
+   - `users`  
+   - `animations`  
+   - `public_gallery`
+
+2. **Deploy the API:**  
+   Place the PHP scripts (db.php, signup.php, login.php, logout.php, user.php, animations.php, animation.php, gallery.php, admin-gallery.php, review.php) in an `/api` directory on your LAMP server and adjust the database credentials in **db.php** accordingly.
+
+3. **Session & Security:**  
+   Ensure PHP sessions are enabled and configure your server to use HTTPS in production.  
+   Use the provided endpoints to handle signup, login, and CRUD operations for animations.
 
 #### Deployment
 
-The [production release](https://blinkenstar.sternenlabor.de) is hosted at Firebase. To deploy a new version, execute the following commands on your local machine:
-```
-  $ FIREBASE_PROJECT_ID='blinkenstar' FIREBASE_API_KEY='<api key>' FIREBASE_AUTH_DOMAIN='blinkenstar.sternenlabor.de' yarn build-firebase
-  $ firebase login
-  $ firebase deploy -m "some explanation what this release changes"
-```
+##### Frontend Deployment
 
+Build the production bundle:
+
+    yarn build
+
+Deploy the contents of the `public` directory to your web server.
+
+##### Backend Deployment
+
+Deploy your PHP API scripts (in the `/api` directory) on your LAMP stack. Confirm that your database is properly set up and that your Apache (or similar) server is configured to serve these scripts (including any URL rewriting if desired).
+
+## Database Setup
+
+Refer to the SQL documentation (provided separately) for instructions on how to create your database and initialize the tables.
 
 ## Notes
 
-* if you want to test the interface from other devices use `webpack-dev-server --host <ip-adress-of-your-computer>`
-* See [github.com/ChrisVeigl/blinkenstar-firmware/docs](https://github.com/ChrisVeigl/blinkenstar-firmware/tree/master/docs) for more infos about the v2 firmware
-
+* To test the interface on multiple devices, use `webpack-dev-server --host <your-ip-address>`.
+* See the MySQL and PHP documentation for advanced configuration and security practices.
 
 ## Contributors
 

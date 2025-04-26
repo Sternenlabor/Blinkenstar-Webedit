@@ -68,7 +68,8 @@
     "close": "Close"
   },
   "gallery": {
-    "copy_animation": "Copy"
+    "copy_animation": "Copy",
+    "loading": "Loading gallery…"
   },
   "admin_gallery": {
     "unpublish": "Remove"
