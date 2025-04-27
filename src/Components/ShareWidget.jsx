@@ -1,12 +1,8 @@
 /* @flow */
-import React, { useState, type Node } from 'react'
+import React, { useState, useEffect, type Node } from 'react'
 import { useTranslation } from 'react-i18next'
-import Dialog from '@mui/material/Dialog'
-import Button from '@mui/material/Button'
-import LinkIcon from '@mui/icons-material/Link'
-import CloseIcon from '@mui/icons-material/Close'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
-import type { Animation } from 'Reducer'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Snackbar, Alert } from '@mui/material'
+import { Link, Share, Close } from '@mui/icons-material'
 
 type Props = {
     animation?: Animation,
@@ -15,33 +11,91 @@ type Props = {
 
 export default function ShareWidget({ animation, close }: Props): Node {
     const { t } = useTranslation()
-    const [copied, setCopied] = useState<boolean>(false)
+    const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false)
+    const [snackbarMessage, setSnackbarMessage] = useState<string>('')
+    const [supportsSharing, setSupportsSharing] = useState<boolean>(false)
+
+    useEffect(() => {
+        setSupportsSharing(!!navigator.share)
+    }, [])
 
     if (!animation) return null
 
-    const shareString = encodeURIComponent(btoa(JSON.stringify(animation)))
-    const url = `${HOST}${BASE_URL}/?s=${shareString}`
+    // Generate URL using URL API and current location
+    const generateShareUrl = () => {
+        const shareString = btoa(JSON.stringify(animation))
+        const url = new URL(window.location.href)
+
+        // Reset existing query parameters and set new share parameter
+        url.search = ''
+        url.searchParams.set('s', shareString)
+
+        return url.toString()
+    }
+
+    const url = generateShareUrl()
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(url)
+            showFeedback(t('share_dialog.copied', 'Copied to clipboard!'))
+        } catch (err) {
+            showFeedback(t('share_dialog.copy_error', 'Failed to copy!'))
+        }
+    }
+
+    const handleShare = async () => {
+        try {
+            await navigator.share({
+                title: t('share_dialog.title'),
+                text: t('share_dialog.share_text'),
+                url: url
+            })
+        } catch (err) {
+            // Sharing was canceled
+        }
+    }
+
+    const showFeedback = (message: string) => {
+        setSnackbarMessage(message)
+        setSnackbarOpen(true)
+    }
 
     return (
-        <Dialog open onClose={close}>
-            <div style={{ padding: 16 }}>
-                <h2>{t('share_dialog.title')}</h2>
-                <p>{t('share_dialog.instructions')}</p>
+        <>
+            <Dialog open onClose={close} fullWidth maxWidth="sm">
+                <DialogTitle>{t('share_dialog.title')}</DialogTitle>
 
-                <CopyToClipboard text={url} onCopy={() => setCopied(true)}>
-                    <Button variant="contained" color="primary" startIcon={<LinkIcon />} autoFocus>
-                        {t('share_dialog.link')}
-                    </Button>
-                </CopyToClipboard>
+                <DialogContent>
+                    <Stack spacing={2} py={1}>
+                        <p>{t('share_dialog.instructions')}</p>
 
-                {copied && <div style={{ marginTop: 8 }}>{t('share_dialog.copied', 'Copied!')}</div>}
+                        <Stack direction="row" spacing={2}>
+                            {supportsSharing && (
+                                <Button variant="contained" startIcon={<Share />} onClick={handleShare} fullWidth>
+                                    {t('share_dialog.share')}
+                                </Button>
+                            )}
 
-                <div style={{ marginTop: 16 }}>
-                    <Button variant="text" color="primary" onClick={close} startIcon={<CloseIcon />}>
+                            <Button variant="contained" startIcon={<Link />} onClick={handleCopy} fullWidth>
+                                {t('share_dialog.copy_link')}
+                            </Button>
+                        </Stack>
+                    </Stack>
+                </DialogContent>
+
+                <DialogActions>
+                    <Button onClick={close} startIcon={<Close />} color="inherit">
                         {t('share_dialog.close')}
                     </Button>
-                </div>
-            </div>
-        </Dialog>
+                </DialogActions>
+            </Dialog>
+
+            <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={() => setSnackbarOpen(false)}>
+                <Alert severity="success" onClose={() => setSnackbarOpen(false)} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
+        </>
     )
 }
