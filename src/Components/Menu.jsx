@@ -128,7 +128,7 @@ export default function Menu({ active, currentAnimationId }: Props): Node {
                     .valueSeq()
                     .toArray()
                     .map((anim: Animation) => (
-                        <>
+                        <React.Fragment key={anim.id}>
                             <AnimationInMenu
                                 key={anim.id}
                                 animation={anim}
@@ -138,7 +138,7 @@ export default function Menu({ active, currentAnimationId }: Props): Node {
                             />
 
                             <Divider />
-                        </>
+                        </React.Fragment>
                     ))}
 
                 {!uid && (

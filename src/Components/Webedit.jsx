@@ -25,7 +25,7 @@ export default function Webedit(): Node {
     const animation: ?Animation = animationId ? animations.get(animationId) : animations.first()
 
     return (
-        <>
+        <React.Fragment>
             {animation ? (
                 animation.type === 'text' ? (
                     <TextEditor animation={animation} onUpdate={handleUpdate} onShare={handleShare} />
@@ -35,6 +35,6 @@ export default function Webedit(): Node {
             ) : null}
 
             <ShareWidget animation={sharing} close={() => setSharing(null)} />
-        </>
+        </React.Fragment>
     )
 }

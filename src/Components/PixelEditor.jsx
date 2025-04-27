@@ -18,6 +18,7 @@ import AnimationPreview from './AnimationPreview'
 import Frame from './Frame'
 import { getFrameColumns } from '../utils'
 import type { Animation } from 'Reducer'
+import { Typography } from '@mui/material'
 
 const EMPTY_DATA = List(range(8).map(() => 0x00))
 
@@ -49,8 +50,7 @@ const style = {
     },
     sliderLabel: {
         flex: '1 1 25%',
-        marginRight: 10,
-        fontFamily: 'Roboto, sans-serif'
+        marginRight: 10
     },
     slider: {
         flex: '1 1 75%',
@@ -314,21 +314,21 @@ export default function PixelEditor({ animation, onUpdate, onShare }: Props): No
             />
 
             <div style={style.sliderContainer}>
-                <span style={style.sliderLabel}>{t('textEditor.speed', 'Speed')}</span>
+                <Typography style={style.sliderLabel}>{t('textEditor.speed', 'Speed')}</Typography>
                 <Slider style={style.slider} value={animationRef.current.speed} step={1} min={0} max={15} onChange={handleSpeedChange} />
-                <span>{animationRef.current.speed}</span>
+                <Typography>{animationRef.current.speed}</Typography>
             </div>
 
             <div style={style.sliderContainer}>
-                <span style={style.sliderLabel}>{t('textEditor.delay', 'Delay')}</span>
+                <Typography style={style.sliderLabel}>{t('textEditor.delay', 'Delay')}</Typography>
                 <Slider style={style.slider} value={animationRef.current.delay} step={0.5} min={0} max={7.5} onChange={handleDelayChange} />
-                <span>{animationRef.current.delay}</span>
+                <Typography>{animationRef.current.delay}</Typography>
             </div>
 
             <div style={style.sliderContainer}>
-                <span style={style.sliderLabel}>{t('pixelEditor.repeat', 'Repeat')}</span>
+                <Typography style={style.sliderLabel}>{t('pixelEditor.repeat', 'Repeat')}</Typography>
                 <Slider style={style.slider} value={animationRef.current.repeat} step={1} min={0} max={15} onChange={handleRepeatChange} />
-                <span>{animationRef.current.repeat}</span>
+                <Typography>{animationRef.current.repeat}</Typography>
             </div>
         </div>
     )
