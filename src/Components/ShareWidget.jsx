@@ -1,7 +1,7 @@
 /* @flow */
 import React, { useState, useEffect, type Node } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Snackbar, Alert } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Snackbar, Alert, Typography } from '@mui/material'
 import { Link, Share, Close } from '@mui/icons-material'
 
 type Props = {
@@ -62,18 +62,18 @@ export default function ShareWidget({ animation, close }: Props): Node {
     }
 
     return (
-        <>
+        <React.Fragment>
             <Dialog open onClose={close} fullWidth maxWidth="sm">
                 <DialogTitle>{t('share_dialog.title')}</DialogTitle>
 
                 <DialogContent>
                     <Stack spacing={2} py={1}>
-                        <p>{t('share_dialog.instructions')}</p>
+                        <Typography>{t('share_dialog.instructions')}</Typography>
 
                         <Stack direction="row" spacing={2}>
                             {supportsSharing && (
                                 <Button variant="contained" startIcon={<Share />} onClick={handleShare} fullWidth>
-                                    {t('share_dialog.share')}
+                                    {t('share_dialog.share_link')}
                                 </Button>
                             )}
 
@@ -96,6 +96,6 @@ export default function ShareWidget({ animation, close }: Props): Node {
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
-        </>
+        </React.Fragment>
     )
 }

@@ -8,6 +8,7 @@ import TextField from '@mui/material/TextField'
 import Switch from '@mui/material/Switch'
 import Button from '@mui/material/Button'
 import ShareIcon from '@mui/icons-material/Share'
+import { Typography } from '@mui/material'
 import type { Animation } from 'Reducer'
 import AnimationPreview from './AnimationPreview'
 
@@ -31,8 +32,7 @@ const style = {
     },
     sliderLabel: {
         flex: '1 1 25%',
-        marginRight: 10,
-        fontFamily: 'Roboto, sans-serif'
+        marginRight: 10
     },
     slider: {
         flex: '1 1 75%',
@@ -147,30 +147,30 @@ export default function TextEditor({ animation, onUpdate, onShare }: Props): Nod
             />
 
             <div style={style.sliderContainer}>
-                <span style={style.sliderLabel}>{t('textEditor.speed')}</span>
+                <Typography style={style.sliderLabel}>{t('textEditor.speed')}</Typography>
                 <Slider style={style.slider} value={animation.speed} step={1} min={0} max={15} onChange={handleSpeedChange} />
-                {animation.speed}
+                <Typography>{animation.speed}</Typography>
             </div>
 
             <div style={style.sliderContainer}>
-                <span style={style.sliderLabel}>{t('textEditor.delay')}</span>
+                <Typography style={style.sliderLabel}>{t('textEditor.delay')}</Typography>
                 <Slider style={style.slider} value={animation.delay} step={0.5} min={0} max={7.5} onChange={handleDelayChange} />
-                {animation.delay}
+                <Typography>{animation.delay}</Typography>
             </div>
 
             <div style={style.sliderContainer}>
-                <span style={style.sliderLabel}>{t('textEditor.repeat')}</span>
+                <Typography style={style.sliderLabel}>{t('textEditor.repeat')}</Typography>
                 <Slider style={style.slider} value={animation.repeat} step={1} min={0} max={15} onChange={handleRepeatChange} />
-                {animation.repeat}
+                <Typography>{animation.repeat}</Typography>
             </div>
 
             <div style={style.sliderContainer}>
-                <span style={style.sliderLabel}>{t('textEditor.rtl')}</span>
+                <Typography style={style.sliderLabel}>{t('textEditor.rtl')}</Typography>
                 <Switch checked={Boolean(animation.direction)} onChange={handleDirectionChange} />
             </div>
 
             <div style={style.sliderContainer}>
-                <span style={style.sliderLabel}>{t('textEditor.livePreview')}</span>
+                <Typography style={style.sliderLabel}>{t('textEditor.livePreview')}</Typography>
                 <Switch checked={livePreview} onChange={handlePreviewChange} />
             </div>
         </div>

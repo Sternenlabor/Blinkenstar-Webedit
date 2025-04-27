@@ -9,10 +9,11 @@ import { addAnimation } from 'Actions/animations'
 import { loadGallery } from 'Actions/gallery'
 import type { Animation } from 'Reducer'
 import { Map } from 'immutable'
+import { Typography } from '@mui/material'
 
 const style = {
     canvas: { padding: 20 },
-    loading: { textAlign: 'center', fontFamily: 'Roboto, sans-serif' }
+    loading: { textAlign: 'center' }
 }
 
 export default function PublicGallery(): Node {
@@ -61,11 +62,11 @@ export default function PublicGallery(): Node {
         <div style={style.canvas}>
             {loading ? (
                 <div style={style.loading}>
-                    <h3>{t('gallery.loading', 'Loading...')}</h3>
+                    <Typography variant="h5">{t('gallery.loading', 'Loading...')}</Typography>
                 </div>
             ) : items.size === 0 ? (
                 <div style={style.loading}>
-                    <h3>{t('gallery.no_animations', 'No animations available yet')}</h3>
+                    <Typography variant="h5">{t('gallery.no_animations', 'No animations available yet')}</Typography>
                 </div>
             ) : (
                 <Gallery gallery={items} clickLabel={t('gallery.copy_animation', 'Copy to library')} onClick={copyToLibrary} />
