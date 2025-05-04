@@ -92,12 +92,23 @@ export async function removeAnimationRemote(uid: string, animationId: string): P
 /**
  * Fetch all animations for a given user.
  */
-export async function fetchRemoteAnimations(uid: string): Promise<Animation[]> {
-    const res = await fetch(`${API_URL}/animations.php?uid=${uid}`, {
-        credentials: 'include' // ensure cookies (including auth) are sent
+export async function fetchRemoteAnimations(uid) {
+    const res = await fetch(`${API_URL}/animations.php`, {
+        credentials: 'include'
     })
+    if (!res.ok) {
+        throw new Error(`Fetch failed: ${res.status}`)
+    }
     const data = await res.json()
-    return data.map(mapAnimationToLocal)
+
+    // Make sure we have an actual array
+    const arr = Array.isArray(data) ? data : data.animations && Array.isArray(data.animations) ? data.animations : []
+
+    if (!Array.isArray(data)) {
+        console.warn('fetchRemoteAnimations expected an array but got:', data)
+    }
+
+    return arr.map(mapAnimationToLocal)
 }
 
 /**

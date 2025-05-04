@@ -30,8 +30,17 @@ export const signup = createAction('LOGIN', async (email: string, password: stri
     return data
 })
 
-export const logout = createAction('LOGOUT')
-export const loggedOut = createAction('LOGOUT')
+export const logout = createAction('LOGOUT', async () => {
+    const res = await fetch(`${API_URL}/logout.php`, {
+        method: 'POST',
+        credentials: 'include'
+    })
+    if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Logout failed')
+    }
+    return {}
+})
 
 /** Mark user as already‐logged in (session restore) */
 export const loggedIn = createAction('LOGIN', async (user: { uid: string, email: string, admin: boolean }) => {
@@ -46,14 +55,17 @@ export const loggedIn = createAction('LOGIN', async (user: { uid: string, email:
 
 /** Sync localStorage ↔ remote library */
 export const syncLibrary = createAction('UPSERT_ANIMATIONS', async (uid: string, localLib: Map<string, Animation>) => {
-    // 1) fetch all from PHP
-    const remoteArray = await fetchRemoteAnimations(uid)
-    // 2) save each remote locally
+    // 1) Fetch all from backend
+    let remoteArray = await fetchRemoteAnimations(uid)
+    // 2) Save remote animations to localStorage
     remoteArray.forEach((anim) => localStorage.setItem(`animation:${anim.id}`, JSON.stringify(anim)))
-    // 3) push any new local ones up
+    // 3) Find unsynced local animations and push them
     const unsynced = localLib.filterNot((a, id) => remoteArray.some((r) => r.id === id)).filterNot((a) => a.text === INITIAL_ANIMATION_TEXT)
     if (unsynced.size) {
         await saveAnimationsToRemote(uid, unsynced)
+        // 4) Re-fetch remote to include newly pushed animations
+        remoteArray = await fetchRemoteAnimations(uid)
+        remoteArray.forEach((anim) => localStorage.setItem(`animation:${anim.id}`, JSON.stringify(anim)))
     }
     return remoteArray
 })

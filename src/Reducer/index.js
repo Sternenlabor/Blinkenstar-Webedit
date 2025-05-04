@@ -93,10 +93,14 @@ export default handleActions(
         },
         UPSERT_ANIMATIONS: (state: State, { payload }) => {
             let animations = state.animations
-            payload.map((animation) => {
-                animations = animations.set(animation.id, animation)
-            })
-
+            if (Array.isArray(payload)) {
+                payload.forEach((anim) => {
+                    animations = animations.set(anim.id, anim)
+                })
+            } else {
+                console.warn('UPSERT_ANIMATIONS: expected array but got', payload)
+            }
+            
             return {
                 ...state,
                 animations

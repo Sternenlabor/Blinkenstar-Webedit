@@ -31,8 +31,11 @@ const initializeApp = async () => {
         const res = await fetch(`${API_URL}/user.php`, { credentials: 'include' })
         if (res.ok) {
             const user = await res.json()
-            if (user && user.uid) {
+            if (user?.uid) {
                 store.dispatch(loggedIn(user))
+                // Dispatch sync after loggedIn
+                const state = store.getState()
+                store.dispatch(syncLibrary(user.uid, state.animations))
             }
         }
     } catch (err) {

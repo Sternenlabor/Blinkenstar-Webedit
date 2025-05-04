@@ -281,7 +281,7 @@ export default function PixelEditor({ animation, onUpdate, onShare }: Props): No
                 >
                     {playing ? t('pixelEditor.pause', 'Pause') : t('pixelEditor.play', 'Play')}
                 </Button>
-                <span>{` Frame ${animationRef.current.animation.currentFrame + 1} / ${animationRef.current.animation.frames}`}</span>
+                <Typography display="inline">{` Frame ${animationRef.current.animation.currentFrame + 1} / ${animationRef.current.animation.frames}`}</Typography>
             </div>
 
             <div style={style.buttonWrapper}>
