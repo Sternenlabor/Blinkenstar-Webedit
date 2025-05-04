@@ -1,76 +1,78 @@
 {
-  "headerTitle": "Blinkenstar",
-  "animation": {
-    "new": "New {{type}}",
-    "text": "Text",
-    "animation": "Animation",
-    "pixel": "Animation"
-  },
-  "textEditor": {
-    "name": "Label",
-    "textPlaceholder": "Text to display",
-    "title": "Text Editor",
-    "speed": "Scroll Speed",
-    "delay": "Delay in Seconds",
-    "repeat": "Number of loops (0=infinite)",
-    "rtl": "right To left",
-    "livePreview": "live Preview"
-  },
-  "pixelEditor": {
-    "name": "Label",
-    "title": "Animation Editor",
-    "speed": "Animation Speed",
-    "delay": "Delay in Seconds",
-    "repeat": "Number of loops (0=infinite)",
-    "nextFrame": "Next Frame",
-    "previousFrame": "Previous Frame"
-  },
-  "menu": {
-    "share": "Share",
-    "transfer": "Transfer",
-    "new": "Reset",
-    "newWarning": "Delete all animations?",
-    "addAnimation": "New Animation",
-    "addText": "New Text",
-    "gallery": "Gallery",
-    "admin_gallery": "Admin Gallery",
-    "clear_library": "Delete All",
-    "login": "Login",
-    "logout": "Logout"
-  },
-  "auth_dialog": {
-    "title": "Login or Signup",
-    "login": "Login",
-    "signup": "Signup",
-    "reset": "Request reset Link",
-    "close": "Close",
-    "email": "Email",
-    "password": "Password",
-    "account_missing": "First time here?",
-    "create_account": "Create a new Account!",
-    "forgot_pwd": "I forgot my password.",
-    "resetlink_sent_notification": "Link sent! Please check your inbox."
-  },
-  "transfer_dialog": {
-    "cancel": "Cancel",
-    "transfer": "Transfer",
-    "submit": "Submit",
-    "title": "Transfer your data",
-    "instructions0": "Please turn on your Blinkenstar",
-    "instructions1": "Connect the audio cable to the computer and your Blinkenstar",
-    "instructions2": "Turn up the volume to maximum!",
-    "instructions3": "Click the transfer button"
-  },
-  "share_dialog": {
-    "title": "Share",
-    "instructions": "Using this link you can share your animation. It'll be automatically imported when opening the link.",
-    "link": "Copy link to clipboard",
-    "close": "Close"
-  },
-  "gallery": {
-    "copy_animation": "Copy"
-  },
-  "admin_gallery": {
-    "unpublish": "Remove"
-  }
+    "headerTitle": "Blinkenstar",
+    "animation": {
+        "new": "New {{type}}",
+        "text": "Text",
+        "animation": "Animation",
+        "pixel": "Animation"
+    },
+    "textEditor": {
+        "name": "Label",
+        "textPlaceholder": "Text to display",
+        "title": "Text Editor",
+        "speed": "Scroll Speed",
+        "delay": "Delay in Seconds",
+        "repeat": "Number of loops (0=infinite)",
+        "rtl": "right To left",
+        "livePreview": "live Preview"
+    },
+    "pixelEditor": {
+        "name": "Label",
+        "title": "Animation Editor",
+        "speed": "Animation Speed",
+        "delay": "Delay in Seconds",
+        "repeat": "Number of loops (0=infinite)",
+        "nextFrame": "Next Frame",
+        "previousFrame": "Previous Frame"
+    },
+    "menu": {
+        "share": "Share",
+        "transfer": "Transfer",
+        "new": "Reset",
+        "newWarning": "Delete all animations?",
+        "addAnimation": "New Animation",
+        "addText": "New Text",
+        "gallery": "Gallery",
+        "admin_gallery": "Admin Gallery",
+        "clear_library": "Delete All",
+        "login": "Login",
+        "logout": "Logout"
+    },
+    "auth_dialog": {
+        "title": "Login or Signup",
+        "login": "Login",
+        "signup": "Signup",
+        "reset": "Request reset Link",
+        "close": "Close",
+        "email": "Email",
+        "password": "Password",
+        "account_missing": "First time here?",
+        "create_account": "Create a new Account!",
+        "forgot_pwd": "I forgot my password.",
+        "resetlink_sent_notification": "Link sent! Please check your inbox."
+    },
+    "transfer_dialog": {
+        "cancel": "Cancel",
+        "transfer": "Transfer",
+        "submit": "Submit",
+        "title": "Transfer your data",
+        "instructions0": "Please turn on your Blinkenstar",
+        "instructions1": "Connect the audio cable to the computer and your Blinkenstar",
+        "instructions2": "Turn up the volume to maximum!",
+        "instructions3": "Click the transfer button"
+    },
+    "share_dialog": {
+        "title": "Share",
+        "instructions": "Using this link you can share your animation. It'll be automatically imported when opening the link.",
+        "copy_link": "Copy link to clipboard",
+        "share_link": "Share link",
+        "close": "Close"
+    },
+    "gallery": {
+        "copy_animation": "Copy",
+        "loading": "Loading gallery…"
+    },
+    "admin_gallery": {
+        "unpublish": "Remove"
+    }
 }

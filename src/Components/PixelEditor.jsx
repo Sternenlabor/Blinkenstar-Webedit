@@ -1,396 +1,335 @@
-// @flow
-import React from 'react';
-import Radium from 'radium';
-import { range } from 'lodash';
-import { t } from 'i18next';
-import { List } from 'immutable';
-import { MAX_ANIMATION_FRAMES } from '../variables';
+/* @flow */
+import React, { useState, useCallback, useEffect, useRef, type Node } from 'react'
+import { range } from 'lodash'
+import { useTranslation } from 'react-i18next'
+import { List } from 'immutable'
+import { MAX_ANIMATION_FRAMES } from '../variables'
+import Button from '@mui/material/Button'
+import Slider from '@mui/material/Slider'
+import TextField from '@mui/material/TextField'
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
+import ShareIcon from '@mui/icons-material/Share'
+import SkipNextIcon from '@mui/icons-material/SkipNext'
+import SkipPreviousIcon from '@mui/icons-material/SkipPrevious'
+import FileCopyIcon from '@mui/icons-material/FileCopy'
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline'
+import PauseCircleOutlineIcon from '@mui/icons-material/PauseCircleOutline'
+import AnimationPreview from './AnimationPreview'
+import Frame from './Frame'
+import { getFrameColumns } from '../utils'
+import type { Animation } from 'Reducer'
+import { Typography } from '@mui/material'
 
-// Updated imports: using Button, Slider, TextField from @material-ui/core and icons from @material-ui/icons
-import Button from '@material-ui/core/Button';
-import Slider from '@material-ui/core/Slider';
-import TextField from '@material-ui/core/TextField';
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import ShareIcon from '@material-ui/icons/Share';
-import SkipNextIcon from '@material-ui/icons/SkipNext';
-import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
-import FileCopyIcon from '@material-ui/icons/FileCopy';
-import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
-import PauseCircleOutlineIcon from '@material-ui/icons/PauseCircleOutline';
+const EMPTY_DATA = List(range(8).map(() => 0x00))
 
-import AnimationPreview from './AnimationPreview';
-import Frame from './Frame';
-import type { Animation } from 'Reducer';
-import { getFrameColumns } from '../utils';
+const MOUSE_MODE_NOTHING = 'MOUSE_MODE_NOTHING'
+const MOUSE_MODE_PAINT = 'MOUSE_MODE_PAINT'
+const MOUSE_MODE_ERASE = 'MOUSE_MODE_ERASE'
 
 const style = {
-  buttons: {},
-  noShrink: {
-    flexShrink: 0,
-  },
-  textField: {
-    flexShrink: 0,
-    width: '256px',
-    marginBottom: '16px',
-  },
-  wrapper: {
-    display: 'inline-flex',
-    flex: '1 1 0',
-    flexDirection: 'column',
-    overflowX: 'auto',
-    overflowY: 'auto',
-    padding: 20,
-    cursor: 'default',
-  },
-  buttonWrapper: {
-    marginBottom: 15,
-  },
-  sliderContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  slider: {
-    marginTop: 0,
-    marginBottom: 0,
-    flex: '1 1 75%',
-    marginLeft: 15,
-    marginRight: 15,
-  },
-  sliderLabel: {
-    marginTop: -10,
-    marginBottom: 0,
-    flex: '1 1 25%',
-    marginRight: 10,
-    fontFamily: 'Roboto, sans-serif',
-  },
-};
-
-const MOUSE_MODE_NOTHING = 'MOUSE_MODE_NOTHING';
-const MOUSE_MODE_PAINT = 'MOUSE_MODE_PAINT';
-const MOUSE_MODE_ERASE = 'MOUSE_MODE_ERASE';
-
-type Props = {
-  animation: Animation,
-  onUpdate: (Animation) => any,
-  onShare: (Animation) => any
-};
-
-type State = {
-  mouseMode: string,
-  playing: boolean
-};
-
-const EMPTY_DATA = List(range(8).map(() => 0x00));
-
-class PixelEditor extends React.Component<Props, State> {
-  state: State = {
-    mouseMode: MOUSE_MODE_NOTHING,
-    playing: false,
-  };
-
-  handleChange = (prop: string, e: SyntheticKeyboardEvent<*>) => {
-    const { animation } = this.props;
-    this.props.onUpdate({
-      ...animation,
-      [prop]: e.target.value.substring(0, 200)
-    });
-  };
-
-  handleSpeedChange = (e, value: number) => {
-    const { animation } = this.props;
-    this.props.onUpdate({
-      ...animation,
-      speed: value,
-    });
-  };
-
-  handleDelayChange = (e, value: number) => {
-    const { animation } = this.props;
-    this.props.onUpdate({
-      ...animation,
-      delay: value,
-    });
-  };
-
-  handleRepeatChange = (e, value: number) => {
-    const { animation } = this.props;
-    this.props.onUpdate({
-      ...animation,
-      repeat: value,
-    });
-  };
-
-  handleNextFrame = () => {
-    const { animation } = this.props;
-    if (animation.animation.currentFrame + 1 === MAX_ANIMATION_FRAMES - 1) {
-      return;
+    wrapper: {
+        display: 'flex',
+        flexDirection: 'column',
+        overflowX: 'auto',
+        overflowY: 'auto',
+        padding: 20,
+        cursor: 'default'
+    },
+    buttonWrapper: {
+        marginBottom: 15
+    },
+    textField: {
+        flexShrink: 0,
+        width: 256,
+        marginBottom: 16
+    },
+    sliderContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: 15
+    },
+    sliderLabel: {
+        flex: '1 1 25%',
+        marginRight: 10
+    },
+    slider: {
+        flex: '1 1 75%',
+        marginLeft: 15,
+        marginRight: 15
     }
-    if (animation.animation.currentFrame + 1 >= animation.animation.frames) {
-      this.props.onUpdate({
-        ...animation,
-        animation: {
-          data: animation.animation.data.concat(EMPTY_DATA),
-          currentFrame: animation.animation.currentFrame + 1,
-          length: animation.animation.length + 1,
-          frames: animation.animation.frames + 1,
-        },
-      });
-    } else {
-      this.props.onUpdate({
-        ...animation,
-        animation: {
-          data: animation.animation.data,
-          currentFrame: animation.animation.currentFrame + 1,
-          length: animation.animation.length,
-          frames: animation.animation.frames,
-        },
-      });
-    }
-  };
-
-  handlePreviousFrame = () => {
-    const { animation } = this.props;
-    if (animation.animation.currentFrame - 1 < 0) {
-      return;
-    }
-    this.props.onUpdate({
-      ...animation,
-      animation: {
-        data: animation.animation.data,
-        currentFrame: animation.animation.currentFrame - 1,
-        length: animation.animation.length,
-        frames: animation.animation.frames,
-      },
-    });
-  };
-
-  handleDeleteFrame = () => {
-    const { animation } = this.props;
-    let newdata;
-    if (animation.animation.currentFrame === 0 && animation.animation.frames === 1) {
-      newdata = EMPTY_DATA;
-      this.props.onUpdate({
-        ...animation,
-        animation: {
-          data: newdata,
-          currentFrame: 0,
-          length: animation.animation.length,
-          frames: animation.animation.frames,
-        },
-      });
-      return;
-    }
-    newdata = animation.animation.data.slice(0, 8 * animation.animation.currentFrame);
-    newdata = newdata.concat(animation.animation.data.slice(8 * animation.animation.currentFrame + 8));
-    const newCurrentFrame = animation.animation.currentFrame === 0 ? 0 : animation.animation.currentFrame - 1;
-    this.props.onUpdate({
-      ...animation,
-      animation: {
-        data: newdata,
-        currentFrame: newCurrentFrame,
-        length: animation.animation.length - 1,
-        frames: animation.animation.frames - 1,
-      },
-    });
-  };
-
-  handleCopyFrame = () => {
-    const { animation } = this.props;
-    if (animation.animation.currentFrame + 1 === MAX_ANIMATION_FRAMES - 1) {
-      return;
-    }
-    const currentFrameData = animation.animation.data.slice(
-      8 * animation.animation.currentFrame,
-      8 * animation.animation.currentFrame + 8
-    );
-    let newdata = animation.animation.data.slice(0, 8 * animation.animation.currentFrame + 8);
-    newdata = newdata.concat(currentFrameData, animation.animation.data.slice(8 * animation.animation.currentFrame + 8));
-    this.props.onUpdate({
-      ...animation,
-      animation: {
-        data: newdata,
-        currentFrame: animation.animation.currentFrame + 1,
-        length: animation.animation.length + 1,
-        frames: animation.animation.frames + 1,
-      },
-    });
-  };
-
-  mouseDown = (y: number, x: number) => {
-    const isOn = this.animationPointIsOn(y, x);
-    this.setState({ mouseMode: isOn ? MOUSE_MODE_ERASE : MOUSE_MODE_PAINT });
-    this.setAnimationPoint(y, x, !isOn);
-  };
-
-  mouseUp = (y: number, x: number) => {
-    this.setState({ mouseMode: MOUSE_MODE_NOTHING });
-  };
-
-  mouseOver = (y: number, x: number) => {
-    if (this.state.mouseMode !== MOUSE_MODE_NOTHING) {
-      this.setAnimationPoint(y, x, this.state.mouseMode === MOUSE_MODE_PAINT);
-    }
-  };
-
-  animationPointIsOn(y: number, x: number) {
-    const { animation } = this.props;
-    const data = animation.animation.data;
-    const column = data[8 * animation.animation.currentFrame + x];
-    const bitIndex = 7 - y;
-    return column & (1 << bitIndex);
-  }
-
-  setAnimationPoint(y: number, x: number, isOn: boolean) {
-    const { animation } = this.props;
-    let data = animation.animation.data.slice();
-    let column = data[8 * animation.animation.currentFrame + x];
-    const bitIndex = 7 - y;
-    if (isOn) {
-      column |= 1 << bitIndex;
-    } else {
-      column &= ~(1 << bitIndex);
-    }
-    data[8 * animation.animation.currentFrame + x] = column;
-    this.props.onUpdate({
-      ...animation,
-      animation: {
-        data: data,
-        currentFrame: animation.animation.currentFrame,
-        length: animation.animation.length,
-        frames: animation.animation.frames,
-      },
-    });
-  }
-
-  render() {
-    const { animation } = this.props;
-    const { playing } = this.state;
-    let pixelPreviewCursor = 'auto';
-    if (this.state.mouseMode === MOUSE_MODE_PAINT) {
-      pixelPreviewCursor = 'pointer';
-    } else if (this.state.mouseMode === MOUSE_MODE_ERASE) {
-      pixelPreviewCursor = 'crosshair';
-    }
-    return (
-      <div style={style.wrapper}>
-        <Button
-           size="small"
-           variant="outlined"
-           color="primary"
-           style={{ alignSelf: 'flex-end', marginTop: '10px', marginBottom: '-20px', minHeight: '34px' }}
-           onClick={() => this.props.onShare(animation)}
-         >
-           <ShareIcon /> Share
-         </Button>
-         <div>
-           { playing ? <AnimationPreview animation={animation} /> : 
-             <Frame
-                columns={getFrameColumns(animation, animation.animation.currentFrame)}
-                cursor={pixelPreviewCursor}
-                mouseDownCallback={this.mouseDown.bind(this)}
-                mouseUpCallback={this.mouseUp.bind(this)}
-                mouseOverCallback={this.mouseOver.bind(this)}
-             />
-           }
-         </div>
-         <div>
-           <Button
-             size="small"
-             variant="text"
-             color="primary"
-             onClick={() => { this.setState(s => ({playing: !s.playing}))}}
-             startIcon={ playing ? <PauseCircleOutlineIcon /> : <PlayCircleOutlineIcon />}
-           >
-             { playing ? "Pause" : "Play" }
-           </Button>
-           Frame {animation.animation.currentFrame + 1} / {animation.animation.frames}
-         </div>
-         <div style={style.buttonWrapper}>
-           <Button
-             variant="text"
-             color="primary"
-             disabled={playing || animation.animation.currentFrame === 0}
-             onClick={this.handlePreviousFrame}
-             startIcon={<SkipPreviousIcon />}
-           >
-             {t('pixelEditor.previousFrame')}
-           </Button>
-           <Button
-             variant="text"
-             color="primary"
-             onClick={this.handleDeleteFrame}
-             startIcon={<DeleteForeverIcon />}
-             disabled={playing}
-           >
-             Delete
-           </Button>
-           <Button
-             variant="text"
-             color="primary"
-             onClick={this.handleCopyFrame}
-             startIcon={<FileCopyIcon />}
-             disabled={playing}
-           >
-             Copy
-           </Button>
-           <Button
-             variant="text"
-             color="primary"
-             disabled={playing}
-             onClick={this.handleNextFrame}
-             endIcon={<SkipNextIcon />}
-           >
-             {t('pixelEditor.nextFrame')}
-           </Button>
-         </div>
-         <TextField
-           style={style.textField}
-           id="name"
-           value={animation.name}
-           onChange={(e) => this.handleChange('name', e)}
-           label={t('pixelEditor.name')}
-           placeholder={t('pixelEditor.name')}
-         />
-         <div style={style.sliderContainer}>
-           <span style={style.sliderLabel}>{t('textEditor.speed')}</span>
-           <Slider
-             style={style.slider}
-             value={animation.speed}
-             step={1}
-             min={0}
-             max={15}
-             onChange={this.handleSpeedChange}
-           />
-           {animation.speed}
-         </div>
-         <div style={style.sliderContainer}>
-           <span style={style.sliderLabel}>{t('textEditor.delay')}</span>
-           <Slider
-             style={style.slider}
-             value={animation.delay}
-             step={0.5}
-             min={0}
-             max={7.5}
-             onChange={this.handleDelayChange}
-           />
-           {animation.delay}
-         </div>
-         <div style={style.sliderContainer}>
-           <span style={style.sliderLabel}>{t('pixelEditor.repeat')}</span>
-           <Slider
-             style={style.slider}
-             value={animation.repeat}
-             step={1}
-             min={0}
-             max={15}
-             onChange={this.handleRepeatChange}
-           />
-           {animation.repeat}
-         </div>
-      </div>
-    );
-  }
 }
 
-export default PixelEditor;
+type Props = {
+    animation: Animation,
+    onUpdate: (Animation) => mixed,
+    onShare: (Animation) => mixed
+}
+
+export default function PixelEditor({ animation, onUpdate, onShare }: Props): Node {
+    const { t } = useTranslation()
+    const [mouseMode, setMouseMode] = useState<string>(MOUSE_MODE_NOTHING)
+    const [playing, setPlaying] = useState<boolean>(false)
+    const animationRef = useRef(animation)
+
+    useEffect(() => {
+        animationRef.current = animation
+    }, [animation])
+
+    const handleChange = useCallback(
+        (prop: string, e) => {
+            onUpdate({ ...animationRef.current, [prop]: e.target.value.substring(0, 200) })
+        },
+        [onUpdate]
+    )
+
+    const handleSpeedChange = useCallback(
+        (_, value: number) => {
+            onUpdate({ ...animationRef.current, speed: value })
+        },
+        [onUpdate]
+    )
+
+    const handleDelayChange = useCallback(
+        (_, value: number) => {
+            onUpdate({ ...animationRef.current, delay: value })
+        },
+        [onUpdate]
+    )
+
+    const handleRepeatChange = useCallback(
+        (_, value: number) => {
+            onUpdate({ ...animationRef.current, repeat: value })
+        },
+        [onUpdate]
+    )
+
+    const handleNextFrame = useCallback(() => {
+        const anim = animationRef.current.animation
+        if (anim.currentFrame + 1 >= MAX_ANIMATION_FRAMES - 1) return
+
+        let newData = anim.data
+        let newFrames = anim.frames
+        let newLength = anim.length
+
+        if (anim.currentFrame + 1 >= anim.frames) {
+            newData = anim.data.concat(EMPTY_DATA)
+            newFrames = anim.frames + 1
+            newLength = anim.length + 1
+        }
+
+        onUpdate({
+            ...animationRef.current,
+            animation: {
+                ...anim,
+                data: newData,
+                currentFrame: anim.currentFrame + 1,
+                frames: newFrames,
+                length: newLength
+            }
+        })
+    }, [onUpdate])
+
+    const handlePreviousFrame = useCallback(() => {
+        const anim = animationRef.current.animation
+        if (anim.currentFrame === 0) return
+
+        onUpdate({
+            ...animationRef.current,
+            animation: {
+                ...anim,
+                currentFrame: anim.currentFrame - 1
+            }
+        })
+    }, [onUpdate])
+
+    const handleDeleteFrame = useCallback(() => {
+        const anim = animationRef.current.animation
+        const { currentFrame, data, frames, length } = anim
+
+        if (currentFrame === 0 && frames === 1) {
+            onUpdate({ ...animationRef.current, animation: { ...anim, data: EMPTY_DATA } })
+            return
+        }
+
+        const start = 8 * currentFrame
+        const newData = data.slice(0, start).concat(data.slice(start + 8))
+        const newCurrent = currentFrame === 0 ? 0 : currentFrame - 1
+
+        onUpdate({
+            ...animationRef.current,
+            animation: {
+                ...anim,
+                data: newData,
+                currentFrame: newCurrent,
+                frames: frames - 1,
+                length: length - 1
+            }
+        })
+    }, [onUpdate])
+
+    const handleCopyFrame = useCallback(() => {
+        const anim = animationRef.current.animation
+        const { currentFrame, data, frames, length } = anim
+        if (currentFrame + 1 >= MAX_ANIMATION_FRAMES - 1) return
+
+        const start = 8 * currentFrame
+        const frameData = data.slice(start, start + 8)
+        const newData = data.slice(0, start + 8).concat(frameData, data.slice(start + 8))
+
+        onUpdate({
+            ...animationRef.current,
+            animation: {
+                ...anim,
+                data: newData,
+                currentFrame: currentFrame + 1,
+                frames: frames + 1,
+                length: length + 1
+            }
+        })
+    }, [onUpdate])
+
+    const setAnimationPoint = useCallback(
+        (y: number, x: number, isOn: boolean) => {
+            const anim = animationRef.current.animation
+            const index = 8 * anim.currentFrame + x
+            const bitIndex = 7 - y
+
+            let column = anim.data.get(index)
+            if (isOn) {
+                column |= 1 << bitIndex
+            } else {
+                column &= ~(1 << bitIndex)
+            }
+
+            const newData = anim.data.set(index, column)
+
+            onUpdate({
+                ...animationRef.current,
+                animation: {
+                    ...anim,
+                    data: newData
+                }
+            })
+        },
+        [onUpdate]
+    )
+
+    const mouseDown = useCallback(
+        (y: number, x: number) => {
+            const anim = animationRef.current.animation
+            const idx = 8 * anim.currentFrame + x
+            const col = anim.data.get(idx)
+            const bit = 1 << (7 - y)
+            const isOn = Boolean(col & bit)
+
+            setMouseMode(isOn ? MOUSE_MODE_ERASE : MOUSE_MODE_PAINT)
+            setAnimationPoint(y, x, !isOn)
+        },
+        [setAnimationPoint]
+    )
+
+    const mouseUp = useCallback(() => {
+        setMouseMode(MOUSE_MODE_NOTHING)
+    }, [])
+
+    const mouseOver = useCallback(
+        (y: number, x: number) => {
+            if (mouseMode !== MOUSE_MODE_NOTHING) {
+                setAnimationPoint(y, x, mouseMode === MOUSE_MODE_PAINT)
+            }
+        },
+        [mouseMode]
+    )
+
+    const cursorStyle = mouseMode === MOUSE_MODE_PAINT ? 'pointer' : mouseMode === MOUSE_MODE_ERASE ? 'crosshair' : 'auto'
+    const columns = getFrameColumns(animationRef.current, animationRef.current.animation.currentFrame)
+
+    return (
+        <div style={style.wrapper}>
+            <Button
+                size="small"
+                variant="outlined"
+                color="primary"
+                onClick={() => onShare(animationRef.current)}
+                style={{ alignSelf: 'flex-end', marginTop: 10, marginBottom: -20, minHeight: 34 }}
+                startIcon={<ShareIcon />}
+            >
+                {t('pixelEditor.share', 'Share')}
+            </Button>
+
+            <div>
+                {playing ? (
+                    <AnimationPreview animation={animationRef.current} />
+                ) : (
+                    <Frame
+                        columns={columns}
+                        cursor={cursorStyle}
+                        mouseDownCallback={mouseDown}
+                        mouseUpCallback={mouseUp}
+                        mouseOverCallback={mouseOver}
+                    />
+                )}
+            </div>
+
+            <div>
+                <Button
+                    size="small"
+                    variant="text"
+                    color="primary"
+                    onClick={() => setPlaying((p) => !p)}
+                    startIcon={playing ? <PauseCircleOutlineIcon /> : <PlayCircleOutlineIcon />}
+                >
+                    {playing ? t('pixelEditor.pause', 'Pause') : t('pixelEditor.play', 'Play')}
+                </Button>
+                <Typography display="inline">{` Frame ${animationRef.current.animation.currentFrame + 1} / ${animationRef.current.animation.frames}`}</Typography>
+            </div>
+
+            <div style={style.buttonWrapper}>
+                <Button
+                    variant="text"
+                    color="primary"
+                    disabled={playing || animationRef.current.animation.currentFrame === 0}
+                    onClick={handlePreviousFrame}
+                    startIcon={<SkipPreviousIcon />}
+                >
+                    {t('pixelEditor.previousFrame', 'Previous')}
+                </Button>
+                <Button variant="text" color="primary" disabled={playing} onClick={handleDeleteFrame} startIcon={<DeleteForeverIcon />}>
+                    {t('pixelEditor.deleteFrame', 'Delete')}
+                </Button>
+                <Button variant="text" color="primary" disabled={playing} onClick={handleCopyFrame} startIcon={<FileCopyIcon />}>
+                    {t('pixelEditor.copyFrame', 'Copy')}
+                </Button>
+                <Button variant="text" color="primary" disabled={playing} onClick={handleNextFrame} endIcon={<SkipNextIcon />}>
+                    {t('pixelEditor.nextFrame', 'Next')}
+                </Button>
+            </div>
+
+            <TextField
+                style={style.textField}
+                label={t('pixelEditor.name', 'Name')}
+                value={animationRef.current.name}
+                onChange={(e) => handleChange('name', e)}
+                fullWidth
+            />
+
+            <div style={style.sliderContainer}>
+                <Typography style={style.sliderLabel}>{t('textEditor.speed', 'Speed')}</Typography>
+                <Slider style={style.slider} value={animationRef.current.speed} step={1} min={0} max={15} onChange={handleSpeedChange} />
+                <Typography>{animationRef.current.speed}</Typography>
+            </div>
+
+            <div style={style.sliderContainer}>
+                <Typography style={style.sliderLabel}>{t('textEditor.delay', 'Delay')}</Typography>
+                <Slider style={style.slider} value={animationRef.current.delay} step={0.5} min={0} max={7.5} onChange={handleDelayChange} />
+                <Typography>{animationRef.current.delay}</Typography>
+            </div>
+
+            <div style={style.sliderContainer}>
+                <Typography style={style.sliderLabel}>{t('pixelEditor.repeat', 'Repeat')}</Typography>
+                <Slider style={style.slider} value={animationRef.current.repeat} step={1} min={0} max={15} onChange={handleRepeatChange} />
+                <Typography>{animationRef.current.repeat}</Typography>
+            </div>
+        </div>
+    )
+}

@@ -1,39 +1,79 @@
 /* @flow */
-import { createAction } from 'redux-actions';
-import { Map } from 'immutable';
-import { DB, saveAnimationsToRemote, mapAnimationToLocal } from '../db';
-import { INITIAL_ANIMATION_TEXT } from '../variables';
+import { createAction } from 'redux-actions'
+import { Map } from 'immutable'
+import { API_URL, fetchRemoteAnimations, saveAnimationsToRemote } from '../db'
+import { INITIAL_ANIMATION_TEXT } from '../variables'
 
-export const loggedIn = createAction('LOGIN', async (uid) => {
-  const info = await DB.collection('users').doc(uid).get();
-  return { uid, admin: info.data()['admin'] || false };
-});
-export const loggedOut = createAction('LOGOUT');
+/** Log in */
+export const login = createAction('LOGIN', async (email: string, password: string) => {
+    const res = await fetch(`${API_URL}/login.php`, {
+        credentials: 'include', // ← send & receive cookies
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error || 'Login failed')
+    return data
+})
 
+/** Sign up */
+export const signup = createAction('LOGIN', async (email: string, password: string) => {
+    const res = await fetch(`${API_URL}/signup.php`, {
+        credentials: 'include', // ← send & receive cookies
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error || 'Signup failed')
+    return data
+})
 
-export const syncLibrary = createAction('UPSERT_ANIMATIONS', async (uid, localLib) => {
-  // fetch remote Library and convert to local schema, i.e. Map<animationId, animation>
-  const animations = await DB.collection('users').doc(uid).collection('animations').get();
-  const remoteLib = animations.docs.reduce((acc, cur) => (
-    acc.set(cur.id, mapAnimationToLocal(cur.data()))
-  ), Map());
+export const logout = createAction('LOGOUT', async () => {
+    const res = await fetch(`${API_URL}/logout.php`, {
+        method: 'POST',
+        credentials: 'include'
+    })
+    if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Logout failed')
+    }
+    return {}
+})
 
-  // store all remote animations locally
-  remoteLib.map(animation => {
-    localStorage.setItem(`animation:${animation.id}`, JSON.stringify(animation));
-  })
+/** Mark user as already‐logged in (session restore) */
+export const loggedIn = createAction('LOGIN', async (user: { uid: string, email: string, admin: boolean }) => {
+    const res = await fetch(`${API_URL}/user.php?uid=${user.uid}`, {
+        credentials: 'include' // ← send & receive cookies
+    })
+    if (!res.ok) throw new Error('Fetch user info failed')
+    const data = await res.json()
+    // You might choose to merge or replace user fields based on the fetch result
+    return { uid: user.uid, email: user.email, admin: data.admin ?? user.admin }
+})
 
-  // save new, unsaved animations from localLib to the cloud
-  const localUnsynced = localLib.filterNot((_, key) => remoteLib.has(key)).filterNot(a => a.text === INITIAL_ANIMATION_TEXT);
-  saveAnimationsToRemote(uid, localUnsynced);
-  return remoteLib;
-});
+/** Sync localStorage ↔ remote library */
+export const syncLibrary = createAction('UPSERT_ANIMATIONS', async (uid: string, localLib: Map<string, Animation>) => {
+    // 1) Fetch all from backend
+    let remoteArray = await fetchRemoteAnimations(uid)
+    // 2) Save remote animations to localStorage
+    remoteArray.forEach((anim) => localStorage.setItem(`animation:${anim.id}`, JSON.stringify(anim)))
+    // 3) Find unsynced local animations and push them
+    const unsynced = localLib.filterNot((a, id) => remoteArray.some((r) => r.id === id)).filterNot((a) => a.text === INITIAL_ANIMATION_TEXT)
+    if (unsynced.size) {
+        await saveAnimationsToRemote(uid, unsynced)
+        // 4) Re-fetch remote to include newly pushed animations
+        remoteArray = await fetchRemoteAnimations(uid)
+        remoteArray.forEach((anim) => localStorage.setItem(`animation:${anim.id}`, JSON.stringify(anim)))
+    }
+    return remoteArray
+})
 
-export const signedUp = createAction('LOGIN', (uid, localLib) => {
-  const lib = localLib.filterNot(a => a.text === INITIAL_ANIMATION_TEXT);
-  //TODO add more signup context. last login referrer etc
-  DB.collection('users').doc(uid).set({active: true})
-    .then(() => {saveAnimationsToRemote(uid, lib)})
-    .catch((err) => {console.log("error during signup: ", err)});
-  return { uid, admin: false };
-});
+/** After a fresh signup, save initial library */
+export const signedUp = createAction('LOGIN', (uid: string, localLib: Map<string, Animation>) => {
+    const toSave = localLib.filterNot((a) => a.text === INITIAL_ANIMATION_TEXT)
+    // fire‐and‐forget
+    saveAnimationsToRemote(uid, toSave)
+    return { uid, admin: false }
+})

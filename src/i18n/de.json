@@ -1,76 +1,77 @@
 {
-  "headerTitle": "Blinkenstar DE",
-  "animation": {
-    "new": "Neu {{type}}",
-    "text": "Text",
-    "animation": "Animation",
-    "pixel": "Animation"
-  },
-  "textEditor": {
-    "name": "Name des Textes",
-    "textPlaceholder": "Angezeigter Text",
-    "title": "Text Editor",
-    "speed": "Geschwindigkeit",
-    "delay": "Wartezeit am Ende",
-    "repeat": "Anzahl der Wiederholungen (0=unendlich)",
-    "rtl": "Rechts-nach-Links",
-    "livePreview": "Simulation"
-  },
-  "pixelEditor": {
-    "name": "Name der Animation",
-    "title": "Animations Editor",
-    "speed": "Geschwindigkeit",
-    "delay": "Wartezeit am Ende",
-    "repeat": "Anzahl der Wiederholungen (0=unendlich)",
-    "nextFrame": "Nächstes Bild",
-    "previousFrame": "Vorheriges Bild"
-  },
-  "menu": {
-    "share": "Teilen",
-    "transfer": "Übertragen",
-    "new": "Reset",
-    "newWarning": "Alle Animationen löschen?",
-    "addAnimation": "Neue Animation",
-    "addText": "Neuer Text",
-    "gallery": "Galerie",
-    "admin_gallery": "Admin Galerie",
-    "clear_library": "Alle Löschen",
-    "login": "Login",
-    "logout": "Logout"
-  },
-  "auth_dialog": {
-    "title": "Einloggen oder Anmelden",
-    "login": "Login",
-    "signup": "Anmelden",
-    "reset": "Link anfordern",
-    "close": "Schließen",
-    "email": "Email",
-    "password": "Passwort",
-    "account_missing": "Zum ersten mal hier?",
-    "create_account": "Erstelle ein Konto!",
-    "forgot_pwd": "Ich habe mein Passwort vergessen.",
-    "resetlink_sent_notification": "Link geschickt! Bitte schauen sie in Ihr Emailpostfach."
-  },
-  "transfer_dialog": {
-    "cancel": "Abbrechen",
-    "transfer": "Übertragen",
-    "submit": "Übertragen",
-    "title": "Daten Übertragen",
-    "instructions0": "Bitte schalte deine Blinkenstar an",
-    "instructions1": "Verbinde das Audio-Kabel mit deinem Computer und deiner Blinkenstar",
-    "instructions2": "Stelle die Lautstärke auf das Maxmimum!",
-    "instructions3": "Drücke auf den Übertragen-Button"
-  },
-  "share_dialog": {
-    "title": "Animation teilen",
-    "instructions": "Gebe diesen Link weiter, um deine Animation zu teilen. Beim Aufrufen des Links wird diese automatisch importiert.",
-        "link": "Link in Zwischenablage kopieren",
-    "close": "Schließen"
-  },
-  "gallery": {
-    "copy_animation": "Kopieren"
-  },
-  "admin_gallery": {
-    "unpublish": "Entfernen"
-  }
+    "headerTitle": "Blinkenstar DE",
+    "animation": {
+        "new": "Neu {{type}}",
+        "text": "Text",
+        "animation": "Animation",
+        "pixel": "Animation"
+    },
+    "textEditor": {
+        "name": "Name des Textes",
+        "textPlaceholder": "Angezeigter Text",
+        "title": "Text Editor",
+        "speed": "Geschwindigkeit",
+        "delay": "Wartezeit am Ende",
+        "repeat": "Anzahl der Wiederholungen (0=unendlich)",
+        "rtl": "Rechts-nach-Links",
+        "livePreview": "Simulation"
+    },
+    "pixelEditor": {
+        "name": "Name der Animation",
+        "title": "Animations Editor",
+        "speed": "Geschwindigkeit",
+        "delay": "Wartezeit am Ende",
+        "repeat": "Anzahl der Wiederholungen (0=unendlich)",
+        "nextFrame": "Nächstes Bild",
+        "previousFrame": "Vorheriges Bild"
+    },
+    "menu": {
+        "share": "Teilen",
+        "transfer": "Übertragen",
+        "new": "Reset",
+        "newWarning": "Alle Animationen löschen?",
+        "addAnimation": "Neue Animation",
+        "addText": "Neuer Text",
+        "gallery": "Galerie",
+        "admin_gallery": "Admin Galerie",
+        "clear_library": "Alle Löschen",
+        "login": "Login",
+        "logout": "Logout"
+    },
+    "auth_dialog": {
+        "title": "Einloggen oder Anmelden",
+        "login": "Login",
+        "signup": "Anmelden",
+        "reset": "Link anfordern",
+        "close": "Schließen",
+        "email": "Email",
+        "password": "Passwort",
+        "account_missing": "Zum ersten mal hier?",
+        "create_account": "Erstelle ein Konto!",
+        "forgot_pwd": "Ich habe mein Passwort vergessen.",
+        "resetlink_sent_notification": "Link geschickt! Bitte schauen sie in Ihr Emailpostfach."
+    },
+    "transfer_dialog": {
+        "cancel": "Abbrechen",
+        "transfer": "Übertragen",
+        "submit": "Übertragen",
+        "title": "Daten Übertragen",
+        "instructions0": "Bitte schalte deine Blinkenstar an",
+        "instructions1": "Verbinde das Audio-Kabel mit deinem Computer und deiner Blinkenstar",
+        "instructions2": "Stelle die Lautstärke auf das Maxmimum!",
+        "instructions3": "Drücke auf den Übertragen-Button"
+    },
+    "share_dialog": {
+        "title": "Animation teilen",
+        "instructions": "Gebe diesen Link weiter, um deine Animation zu teilen. Beim Aufrufen des Links wird diese automatisch importiert.",
+        "copy_link": "Link in Zwischenablage kopieren",
+        "share link": "Link teilen",
+        "close": "Schließen"
+    },
+    "gallery": {
+        "copy_animation": "Kopieren"
+    },
+    "admin_gallery": {
+        "unpublish": "Entfernen"
+    }
 }
