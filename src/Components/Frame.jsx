@@ -1,6 +1,7 @@
 // @flow
 import React, { type Node } from 'react'
 import { List } from 'immutable'
+import { over } from 'lodash'
 
 type Props = {
     columns: List<List<boolean>>,
@@ -19,7 +20,10 @@ const baseStyle = {
     // avoid dragging the whole preview in Firefox
     userSelect: 'none',
     MozUserSelect: 'none',
-    WebkitUserSelect: 'none'
+    WebkitUserSelect: 'none',
+    borderRadius: '4px',
+    overflow: 'hidden',
+    width: 'min-content'
 }
 
 const sizes = {

@@ -19,7 +19,9 @@ const style = {
         marginBottom: '4px',
         width: '100px'
     },
-    frame: { boxShadow: '7px 6px 2px lightgrey' },
+    frame: {
+        /*boxShadow: '7px 6px 2px lightgrey',*/
+    },
     actionButton: { marginTop: '10px', width: '100%' }
 }
 
