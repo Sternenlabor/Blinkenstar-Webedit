@@ -1,9 +1,3 @@
--- Create the database (if not already created)
-CREATE DATABASE IF NOT EXISTS blinkenstar
-  DEFAULT CHARACTER SET utf8mb4
-  DEFAULT COLLATE utf8mb4_general_ci;
-
-USE blinkenstar;
 
 -- =============================
 -- 1. Create Users Table

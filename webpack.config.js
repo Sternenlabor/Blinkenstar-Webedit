@@ -4,6 +4,7 @@ const webpack = require('webpack')
 const fs = require('fs')
 const dotenv = require('dotenv')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const FaviconsWebpackPlugin = require('favicons-webpack-plugin')
 
 const nodeEnv = (process.env.NODE_ENV || 'development').trim()
 const envFile = `.env.${nodeEnv}`
@@ -15,12 +16,16 @@ const envKeys = Object.keys(envVars).reduce((prev, next) => {
 
 const __DEV__ = nodeEnv !== 'production'
 
+const clientApiUrl = process.env.API_URL || '/api'
+
 // Use "source-map" (without the leading '#') which is the valid devtool value in webpack 5.
-const devtool = __DEV__ ? 'source-map' : ''
+const devtool = __DEV__ ? 'source-map' : false
 
 const plugins = [
     new webpack.DefinePlugin({
-        'process.env': envKeys,
+        // spread your dotenv vars (if any), then override/add API_URL from cross-env:
+        ...envKeys,
+        'process.env.API_URL': JSON.stringify(clientApiUrl),
         __DEV__: JSON.stringify(__DEV__),
         __PROD__: JSON.stringify(!__DEV__),
         BASE_URL: JSON.stringify(`${process.env.BASE_URL || ''}`),
@@ -32,6 +37,15 @@ const plugins = [
         minify: {},
         inject: 'body',
         hash: true
+    }),
+    new FaviconsWebpackPlugin({
+        logo: 'src/assets/logo.png', // your “master” logo
+        mode: 'webapp', // generate a full webapp manifest
+        devMode: 'webapp', // same in dev
+        cache: true, // speed up rebuilds
+        inject: true, // auto-inject <link> tags into HtmlWebpackPlugin
+        prefix: 'icons/[fullhash]/', // optional sub-folder
+        publicPath: '/'
     })
 ]
 
