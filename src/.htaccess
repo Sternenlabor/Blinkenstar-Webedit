@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+    # enable rewrite engine
+    RewriteEngine On
+    # base directory (optional, adjust if in a subfolder)
+    RewriteBase /
+
+    # if the request is NOT for a real file…
+    RewriteCond %{REQUEST_FILENAME} !-f
+    # …and NOT for a real directory…
+    RewriteCond %{REQUEST_FILENAME} !-d
+    # …then rewrite it to /index.html
+    RewriteRule ^.*$ /index.html [L]
+</IfModule>
