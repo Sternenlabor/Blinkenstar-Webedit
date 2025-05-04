@@ -1,88 +1,105 @@
 // @flow
-import React from 'react';
-import { List } from 'immutable';
+import React, { type Node } from 'react'
+import { List } from 'immutable'
+import { over } from 'lodash'
 
 type Props = {
-  columns: List<List<boolean>>,
-  style: any,
-  size: string,
-  onClick?: Function,
-  mouseUpCallback?: Function,
-  mouseDownCallback?: Function,
-  mouseOverCallback?: Function,
-};
-
-const style = {
-  flexShrink: 0,
-  display: 'block',
-
-  // avoid dragging the whole preview in FireFox
-  UserSelect: 'none',
-  MozUserSelect: 'none',
-  WebkitUserSelect: 'none',
-};
-
-const sizes = {
-  thumb: 2,
-  gallery: 5,
-  small: 10,
-  mid: 15,
-  huge: 20,
-};
-
-const DotColumn = ({data, row, radius, offColor, cursor, mouseDownCallback, mouseUpCallback, mouseOverCallback}) => (
-  <g>
-    {data.map((on, index) => (
-      <circle
-        key={index}
-        r={radius}
-        cy={index * (radius * 2.5) + (radius * 1.5)}
-        cx={row * (radius * 2.5) + (radius * 1.5)}
-        fill={on ? 'red' : (offColor || 'slategrey')}
-        style={{cursor: cursor}}
-        onMouseDown={mouseDownCallback && mouseDownCallback.bind(this, index, row)}
-        onMouseUp={mouseUpCallback && mouseUpCallback.bind(this, index, row)}
-        onMouseOver={mouseOverCallback && mouseOverCallback.bind(this, index, row)}
-      />
-    ))}
-  </g>
-);
-
-export default class Frame extends React.Component<Props, State> {
-  static defaultProps = { size: 'small', offColor: 'slategrey' };
-
-  render() {
-    const { columns, size, mouseUpCallback } = this.props;
-    const radius = sizes[size];
-    const width = 8 * (radius * 2.5) + (radius * 0.5);
-    const currentStyle = { ...style, ...this.props.style };
-
-    return (
-      <div
-        style={currentStyle}
-        onClick={this.props.onClick}
-        onMouseUp={mouseUpCallback && mouseUpCallback.bind(this)}
-        onMouseLeave={mouseUpCallback && mouseUpCallback.bind(this)}
-        draggable="false"
-      >
-        <svg height={width} width={width} style={{display: 'block'}}>
-          <rect height={width}  width={width} x="0" y="0" fill="black" />
-          { columns.map((col, i) => (
-              <DotColumn
-                data={col}
-                radius={radius}
-                key={i}
-                row={i}
-                cursor={ this.props.mouseDownCallback && 'pointer' || 'default' }
-                offColor={this.props.offColor}
-                mouseDownCallback={this.props.mouseDownCallback}
-                mouseUpCallback={this.props.mouseUpCallback}
-                mouseOverCallback={this.props.mouseOverCallback}
-              />
-            ))}
-        </svg>
-      </div>
-    );
-  }
+    columns: List<List<boolean>>,
+    style?: { [string]: any },
+    size?: 'thumb' | 'gallery' | 'small' | 'mid' | 'huge',
+    offColor?: string,
+    onClick?: (e: SyntheticMouseEvent<>) => mixed,
+    mouseUpCallback?: () => mixed,
+    mouseDownCallback?: (row: number, col: number) => mixed,
+    mouseOverCallback?: (row: number, col: number) => mixed
 }
 
+const baseStyle = {
+    flexShrink: 0,
+    display: 'block',
+    // avoid dragging the whole preview in Firefox
+    userSelect: 'none',
+    MozUserSelect: 'none',
+    WebkitUserSelect: 'none',
+    borderRadius: '4px',
+    overflow: 'hidden',
+    width: 'min-content'
+}
+
+const sizes = {
+    thumb: 2,
+    gallery: 5,
+    small: 10,
+    mid: 15,
+    huge: 20
+}
+
+type DotColumnProps = {
+    data: List<boolean>,
+    row: number,
+    radius: number,
+    offColor: string,
+    cursor: string,
+    onMouseDown?: (r: number, c: number) => mixed,
+    onMouseUp?: (r: number, c: number) => mixed,
+    onMouseOver?: (r: number, c: number) => mixed
+}
+
+function DotColumn({ data, row, radius, offColor, cursor, onMouseDown, onMouseUp, onMouseOver }: DotColumnProps): Node {
+    return (
+        <g>
+            {data.map((on, r) => (
+                <circle
+                    key={r}
+                    r={radius}
+                    cx={row * radius * 2.5 + radius * 1.5}
+                    cy={r * radius * 2.5 + radius * 1.5}
+                    fill={on ? 'red' : offColor}
+                    style={{ cursor }}
+                    onMouseDown={onMouseDown ? () => onMouseDown(r, row) : undefined}
+                    onMouseUp={onMouseUp ? () => onMouseUp(r, row) : undefined}
+                    onMouseOver={onMouseOver ? () => onMouseOver(r, row) : undefined}
+                />
+            ))}
+        </g>
+    )
+}
+
+function Frame({
+    columns,
+    style = {},
+    size = 'small',
+    offColor = 'slategrey',
+    onClick,
+    mouseUpCallback,
+    mouseDownCallback,
+    mouseOverCallback
+}: Props): Node {
+    const radius = sizes[size] || sizes.small
+    const dim = radius * 2.5
+    const width = 8 * dim + radius * 0.5
+    const mergedStyle = { ...baseStyle, ...style }
+
+    return (
+        <div style={mergedStyle} onClick={onClick} onMouseUp={mouseUpCallback} onMouseLeave={mouseUpCallback} draggable="false">
+            <svg width={width} height={width} style={{ display: 'block' }}>
+                <rect width={width} height={width} fill="black" />
+                {columns.map((col, i) => (
+                    <DotColumn
+                        key={i}
+                        data={col}
+                        row={i}
+                        radius={radius}
+                        offColor={offColor}
+                        cursor={mouseDownCallback ? 'pointer' : 'default'}
+                        onMouseDown={mouseDownCallback}
+                        onMouseUp={mouseUpCallback}
+                        onMouseOver={mouseOverCallback}
+                    />
+                ))}
+            </svg>
+        </div>
+    )
+}
+
+export default React.memo<Props>(Frame)

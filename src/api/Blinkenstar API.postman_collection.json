@@ -1,0 +1,355 @@
+{
+	"info": {
+		"_postman_id": "4c561236-e45e-492e-9aed-7531cd70ce0a",
+		"name": "Blinkenstar API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4908649"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Signup",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"mysecretpassword\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/signup.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signup.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"mysecretpassword\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/logout.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"logout.php"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Animations",
+			"item": [
+				{
+					"name": "List Animations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/animations.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"animations.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Animation",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"123e4567-e89b-12d3-a456-426614174001\",\n    \"name\": \"My Animation\",\n    \"type\": \"text\",\n    \"text\": \"Hello, World!\",\n    \"frames_data\": \"[]\",\n    \"speed\": 13,\n    \"delay\": 0,\n    \"repeat\": 0,\n    \"direction\": 0\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/animations.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"animations.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Animation",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"My Updated Animation\",\n    \"speed\": 10\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/animation.php?id=123e4567-e89b-12d3-a456-426614174001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"animation.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "123e4567-e89b-12d3-a456-426614174001"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Animation",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/animation.php?id=123e4567-e89b-12d3-a456-426614174001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"animation.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "123e4567-e89b-12d3-a456-426614174001"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Public Gallery",
+			"item": [
+				{
+					"name": "List Public Gallery",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/gallery.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"gallery.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Publish Animation to Gallery (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"animationId\": \"123e4567-e89b-12d3-a456-426614174001\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/gallery.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"gallery.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unpublish Animation from Gallery (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/gallery.php?id=pub_12345",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"gallery.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "pub_12345"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin Gallery & Review",
+			"item": [
+				{
+					"name": "List Admin Gallery (Admin Only)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin-gallery.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin-gallery.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Review Animation (Set Reviewed)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"animationId\": \"123e4567-e89b-12d3-a456-426614174001\",\n    \"reviewed\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/review.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"review.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Review Animation (Unset Reviewed)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"animationId\": \"123e4567-e89b-12d3-a456-426614174001\",\n    \"reviewed\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/review.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"review.php"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost/api"
+		}
+	]
+}

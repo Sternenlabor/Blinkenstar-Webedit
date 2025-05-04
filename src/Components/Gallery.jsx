@@ -1,51 +1,46 @@
 /* @flow */
-import React from 'react';
-import Radium from 'radium';
-import { Map } from 'immutable';
-
-import GalleryItem from './GalleryItem';
+import React from 'react'
+import { Map } from 'immutable'
+import GalleryItem from './GalleryItem'
 
 const style = {
-  gallery: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'flex-start',
-    alignContent: 'flex-start',
-    height: '100%',
-    width: '100%',
-  },
-};
+    gallery: {
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'flex-start',
+        alignContent: 'flex-start',
+        height: '100%',
+        width: '100%'
+    }
+}
 
 type Props = {
-  gallery: Map<string, Animation>,
-  clickIcon: string,
-  clickLabel: string,
-  onClick?: (animations: Array<Animation>) => void
-};
-
-@Radium
-export default class Gallery extends React.Component<Props, State> {
-  static defaultProps = {
-    gallery: new Map()
-  };
-
-  render() {
-    const { gallery } = this.props;
-
-    return (
-      <div style={style.gallery}>
-        { gallery.valueSeq().map((animation) => 
-          <GalleryItem 
-            key={ animation.id }
-            animation={ animation } 
-            size="gallery"
-            clickIcon={this.props.clickIcon}
-            clickLabel={this.props.clickLabel}
-            onClick={this.props.onClick}
-          />
-        )}
-      </div>
-    );
-  }
+    gallery: Map<string, Animation>,
+    clickIcon: string,
+    clickLabel: string,
+    onClick?: (Array<Animation>) => mixed
 }
+
+function Gallery({ gallery, clickIcon, clickLabel, onClick }: Props): React.Node {
+    return (
+        <div style={style.gallery}>
+            {gallery.valueSeq().map((animation) => (
+                <GalleryItem
+                    key={animation.id}
+                    animation={animation}
+                    size="gallery"
+                    clickIcon={clickIcon}
+                    clickLabel={clickLabel}
+                    onClick={onClick}
+                />
+            ))}
+        </div>
+    )
+}
+
+Gallery.defaultProps = {
+    gallery: new Map()
+}
+
+export default Gallery

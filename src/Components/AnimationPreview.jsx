@@ -1,113 +1,52 @@
-// @flow
-import React from 'react';
-import { numFrames, lastFrameIndex, getFrameColumns } from '../utils';
-import Frame from './Frame';
-import type { Animation } from '../Reducer';
+/* @flow */
+import React, { useState, useEffect, useRef, type Node } from 'react'
+import { numFrames, lastFrameIndex, getFrameColumns } from '../utils'
+import Frame from './Frame'
 
 type Props = {
-  animation: Animation,
-  onClick?: Function
-};
-
-type State = {
-  currentFrame: number
-};
-
-const style = {
-  // avoid dragging the whole preview in FireFox
-  UserSelect: 'none',
-  MozUserSelect: 'none',
-  WebkitUserSelect: 'none',
-};
-
-
-export default class AnimationPreview extends React.Component<Props, State> {
-  state = { currentFrame: 0 }
-  rAF: any;
-
-  componentDidMount() {
-    this.resetLoop();
-  }
-
-  componentDidUpdate(prevProps) {
-    const { 
-      speed,
-      delay,
-      direction,
-      text,
-      animation: {
-        frames
-      }
-    } = this.props.animation;
-
-    // reset the animation for changes to the Animation, 
-    // but ignore state-changes
-    if ( prevProps.animation.speed !== speed
-      || prevProps.animation.delay !== delay
-      || prevProps.animation.direction !== direction
-      || prevProps.animation.text !== text
-      || prevProps.animation.animation.frames !== frames
-    ) {
-      this.resetLoop();
-    }
-  }
-
-  componentWillUnmount() {
-    window.cancelAnimationFrame(this.rAF);
-  }
-
-  resetLoop = () => {
-    // cleanup old request
-    window.cancelAnimationFrame(this.rAF);
-    const frames = numFrames(this.props.animation);
-    if (frames === 0) {
-      // no frames, no loops
-      return;
-    }
-
-    // prepare and kick off rAF handler
-    const { direction, delay, speed } = this.props.animation;
-    const msPerFrame = 1000 / (1 / (0.002048 * (250 - 16 * (speed || 1))));
-    let nextUpdate = new Date().getTime();
-
-    const loop = () => {
-      if (nextUpdate > new Date().getTime()) {
-        // no changes, check again later
-        this.rAF = window.requestAnimationFrame(loop);
-        return 
-      } 
-      const nextFrame = (this.state.currentFrame + (direction ? -1 : 1)) % frames;
-      
-      const now = new Date().getTime();
-      let offset = msPerFrame;
-      // set timing for next animation-frame
-      if (nextFrame === lastFrameIndex(this.props.animation) && delay > 0) {
-        offset = (delay * 1000);
-      }       
-      nextUpdate += offset;
-      if (nextUpdate < now) {
-        // the browser will stop AF requests when the tab is idle/inactive. 
-        // this condition avoids having a sped up animation after inactivity,
-        // due to the timer being way in the past
-        nextUpdate = now + offset;
-      } 
-      // step to next Frame
-      this.setState({ currentFrame: nextFrame});
-      this.rAF = window.requestAnimationFrame(loop);
-    }
-    this.rAF = window.requestAnimationFrame(loop);
-  }
-
-  render() {
-    const columns = getFrameColumns(this.props.animation, this.state.currentFrame)
-
-    return <Frame 
-      columns={columns} 
-      size={this.props.size} 
-      offColor={this.props.offColor} 
-      style={this.props.style} 
-      onClick={this.props.onClick}
-      />
-  }
+    animation: Animation,
+    size?: string,
+    offColor?: string,
+    style?: mixed,
+    onClick?: () => void
 }
 
+function AnimationPreview({ animation, size, offColor, style, onClick }: Props): Node {
+    const [currentFrame, setCurrentFrame] = useState<number>(0)
+    const rAF = useRef<number>(0)
+
+    useEffect(() => {
+        const framesCount = numFrames(animation)
+        if (framesCount === 0) return
+
+        // Local frame counter to avoid stale closure
+        let frame = currentFrame
+        const { direction = false, delay = 0, speed = 1 } = animation
+
+        // Calculate milliseconds per frame
+        const msPerFrame = 1000 / (1 / (0.002048 * (250 - 16 * speed)))
+        let nextTime = Date.now()
+
+        const loop = () => {
+            const now = Date.now()
+            if (now >= nextTime) {
+                // Advance or rewind frame
+                frame = (frame + (direction ? -1 : 1) + framesCount) % framesCount
+                setCurrentFrame(frame)
+
+                // If last frame and delay set, pause
+                const offset = frame === lastFrameIndex(animation) && delay > 0 ? delay * 1000 : msPerFrame
+                nextTime = now + offset
+            }
+            rAF.current = requestAnimationFrame(loop)
+        }
+
+        rAF.current = requestAnimationFrame(loop)
+        return () => cancelAnimationFrame(rAF.current)
+    }, [animation])
+
+    const columns = getFrameColumns(animation, currentFrame)
+    return <Frame columns={columns} size={size} offColor={offColor} style={style} onClick={onClick} />
+}
+
+export default React.memo<Props>(AnimationPreview)
