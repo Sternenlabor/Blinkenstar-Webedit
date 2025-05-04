@@ -7,7 +7,16 @@ try {
     switch ($method) {
         case 'GET':
             $stmt = $pdo->query("SELECT * FROM public_gallery ORDER BY published_at DESC");
-            ApiResponse::send($stmt->fetchAll());
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Convert frames_data JSON back into `columns` array
+            $rows = array_map(function ($row) {
+                $row['columns'] = json_decode($row['frames_data'], true);
+                unset($row['frames_data']);
+                return $row;
+            }, $rows);
+
+            ApiResponse::send($rows);
             break;
 
         case 'POST':

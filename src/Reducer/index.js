@@ -100,7 +100,7 @@ export default handleActions(
             } else {
                 console.warn('UPSERT_ANIMATIONS: expected array but got', payload)
             }
-            
+
             return {
                 ...state,
                 animations
@@ -120,16 +120,20 @@ export default handleActions(
 
         // Public Gallery
         UPSERT_GALLERY_ANIMATIONS: (state: State, { payload }) => {
+            if (!Array.isArray(payload)) {
+                console.error('UPSERT_GALLERY_ANIMATIONS: payload is not an array', payload)
+                return state
+            }
             let gallery = state.gallery
-            payload.map((animation) => {
+            payload.forEach((animation) => {
                 gallery = gallery.set(animation.id, animation)
             })
-
             return {
                 ...state,
                 gallery
             }
         },
+
         REMOVE_GALLERY_ANIMATION: (state: State, { payload }) => {
             if (!state.gallery.has(payload)) {
                 return state

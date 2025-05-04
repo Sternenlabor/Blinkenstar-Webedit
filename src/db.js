@@ -12,7 +12,11 @@ export const API_URL = process.env.API_URL || 'http://localhost:8000'
  * into our local Redux Animation shape.
  */
 export function mapAnimationToLocal(doc: any): Animation {
-    const frames = doc.type === 'pixel' ? doc.columns.length / 8 : 0
+    // Safely get columns with fallback to empty array
+    const columns = doc.columns || [];
+    // Calculate frames only if type is pixel and columns exist
+    const frames = doc.type === 'pixel' ? columns.length / 8 : 0;
+
     const result: any = {
         id: doc.id,
         name: doc.name,
@@ -23,7 +27,7 @@ export function mapAnimationToLocal(doc: any): Animation {
         direction: doc.direction,
         speed: doc.speed,
         animation: {
-            data: List(doc.columns || []),
+            data: List(columns),
             currentFrame: 0,
             frames,
             length: frames
@@ -117,7 +121,8 @@ export async function fetchRemoteAnimations(uid) {
 export async function fetchPublicGallery(): Promise<Animation[]> {
     const res = await fetch(`${API_URL}/gallery.php`)
     const data = await res.json()
-    return data.map(mapAnimationToLocal)
+    // Ensure data is an array
+    return Array.isArray(data) ? data.map(mapAnimationToLocal) : []
 }
 
 /**
