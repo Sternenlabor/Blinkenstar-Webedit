@@ -9,7 +9,7 @@ import SendIcon from '@mui/icons-material/Send'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import CloseIcon from '@mui/icons-material/Close'
 import AuthDialog from './AuthDialog'
-import { loggedOut } from 'Actions/auth'
+import { logout } from 'Actions/auth'
 import transfer from 'Services/flash'
 
 const style = {
@@ -55,7 +55,7 @@ export default function RightMenu(): Node {
     }, [])
 
     const handleLogout = useCallback(() => {
-        dispatch(loggedOut())
+        dispatch(logout())
     }, [dispatch])
 
     const flashInstructions = range(4).map((i) => <div key={i}>{`${i + 1}. ${t(`transfer_dialog.instructions${i}`)}`}</div>)

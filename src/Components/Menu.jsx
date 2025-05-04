@@ -8,9 +8,9 @@ import AddIcon from '@mui/icons-material/Add'
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary'
 import AnimationInMenu from './AnimationInMenu'
 import { newAnimation, addAnimation, removeAnimation, reset } from 'Actions/animations'
+import { syncLibrary } from '../Actions/auth'
 import { INITIAL_ANIMATION_TEXT } from '../variables'
 import type { Animation } from 'Reducer'
-import { border } from '@mui/system'
 
 type Props = {
     active: string,
@@ -20,14 +20,8 @@ type Props = {
 const styles = {
     wrap: { alignItems: 'center', display: 'flex', flexDirection: 'column' },
     list: { width: '100%' },
-    listItem: {
-        backgroundColor: 'transparent',
-        border: 'none'
-    },
-    listItemActive: {
-        backgroundColor: '#E0E0E0',
-        border: 'none'
-    },
+    listItem: { backgroundColor: 'transparent', border: 'none' },
+    listItemActive: { backgroundColor: '#E0E0E0', border: 'none' },
     reset: { width: '100%', marginTop: '30px', minHeight: '34px', color: '#da1616' }
 }
 
@@ -35,17 +29,31 @@ export default function Menu({ active, currentAnimationId }: Props): Node {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const { t } = useTranslation()
-    const animations = useSelector((state) => state.animations)
-    const uid = useSelector((state) => state.uid)
-    const admin = useSelector((state) => state.admin)
 
-    // Ensure there's at least one animation on startup
+    // Pull our pieces of state
+    const animations = useSelector((state) => state.animations) // Map<string, Animation>
+    const uid = useSelector((state) => state.uid) // '' or user id
+    const admin = useSelector((state) => state.admin) // boolean
+
+    // On mount: inject a default only for unauthenticated, then sync if logged in
     useEffect(() => {
-        if (animations.size === 0) {
+        if (animations.size === 0 && !uid) {
             const anim = newAnimation('text', INITIAL_ANIMATION_TEXT)
             dispatch(addAnimation(anim, uid))
         }
+        if (uid) {
+            dispatch(syncLibrary(uid, animations))
+        }
     }, [animations.size, dispatch, uid])
+
+    // Build an array of all animations
+    const animArray: Animation[] = animations.valueSeq().toArray()
+    // Detect if any of these came from the server (they’ll have a user_id field)
+    const hasRemote = Boolean(uid && animArray.some((a: any) => a.user_id != null))
+    // Filter out only our in-memory placeholder (text===INITIAL_ANIMATION_TEXT && no user_id)
+    const displayAnims: Animation[] = hasRemote
+        ? animArray.filter((a: any) => !(a.type === 'text' && a.text === INITIAL_ANIMATION_TEXT && a.user_id == null))
+        : animArray
 
     const handleRemove = useCallback(
         (animationId: string) => {
@@ -124,22 +132,17 @@ export default function Menu({ active, currentAnimationId }: Props): Node {
 
                 <Divider />
 
-                {animations
-                    .valueSeq()
-                    .toArray()
-                    .map((anim: Animation) => (
-                        <React.Fragment key={anim.id}>
-                            <AnimationInMenu
-                                key={anim.id}
-                                animation={anim}
-                                selected={active === 'webedit' && anim.id === currentAnimationId}
-                                onClick={() => navigate(`/${anim.id}`)}
-                                onRemove={handleRemove}
-                            />
-
-                            <Divider />
-                        </React.Fragment>
-                    ))}
+                {displayAnims.map((anim) => (
+                    <React.Fragment key={anim.id}>
+                        <AnimationInMenu
+                            animation={anim}
+                            selected={active === 'webedit' && anim.id === currentAnimationId}
+                            onClick={() => navigate(`/${anim.id}`)}
+                            onRemove={handleRemove}
+                        />
+                        <Divider />
+                    </React.Fragment>
+                ))}
 
                 {!uid && (
                     <Button size="small" style={styles.reset} onClick={handleReset}>
