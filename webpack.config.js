@@ -5,6 +5,7 @@ const fs = require('fs')
 const dotenv = require('dotenv')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 const nodeEnv = (process.env.NODE_ENV || 'development').trim()
 const envFile = `.env.${nodeEnv}`
@@ -46,6 +47,12 @@ const plugins = [
         inject: true, // auto-inject <link> tags into HtmlWebpackPlugin
         prefix: 'icons/[fullhash]/', // optional sub-folder
         publicPath: '/'
+    }),
+    new CopyWebpackPlugin({
+        patterns: [
+            { from: 'src/api/*.php', to: 'api/[name][ext]' },
+            { from: 'src/api/includes/*.php', to: 'api/includes/[name][ext]' }
+        ]
     })
 ]
 
