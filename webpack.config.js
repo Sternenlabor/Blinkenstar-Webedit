@@ -50,7 +50,7 @@ const plugins = [
     }),
     new CopyWebpackPlugin({
         patterns: [
-            { from: 'src/.htaccess', to: '.htaccess' },
+            { from: 'src/.htaccess', to: '[name][ext]' },
             { from: 'src/api/*.php', to: 'api/[name][ext]' },
             { from: 'src/api/includes/*.php', to: 'api/includes/[name][ext]' }
         ]
@@ -71,7 +71,11 @@ module.exports = {
     output: {
         path: path.resolve('public'),
         filename: 'app-[fullhash].js',
+        clean: true,
         publicPath: `${process.env.BASE_URL || '/'}`
+    },
+    performance: {
+        hints: false
     },
     module: {
         rules: [

@@ -8,7 +8,7 @@
         "dev:frontend": "cross-env NODE_ENV=development API_URL=http://localhost:8000 webpack-dashboard -- webpack-dev-server --host 0.0.0.0 --history-api-fallback",
         "dev": "cross-env NODE_ENV=development API_URL=http://localhost:8000 webpack-dev-server --host 0.0.0.0 --history-api-fallback",
         "lint": "eslint src/**/*.js && eslint src/**/*.jsx",
-        "build": "cross-env NODE_ENV=production API_URL=/api webpack",
+        "build": "node scripts/clean-public.js && cross-env NODE_ENV=production API_URL=/api webpack",
         "backend": "php -S localhost:8000 -t src/api",
         "dev:all": "concurrently \"npm run dev\" \"npm run backend\""
     },
@@ -78,5 +78,6 @@
     },
     "resolutions": {
         "prettier": "^3.5.3"
-    }
+    },
+    "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
