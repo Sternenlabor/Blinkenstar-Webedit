@@ -1,0 +1,56 @@
+name: Deploy public/ to FTP (main)
+
+on:
+    push:
+        branches:
+            - main
+
+concurrency:
+    group: ftp-deploy-main
+    cancel-in-progress: true
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: yarn
+                  cache-dependency-path: yarn.lock
+
+            - name: Setup Yarn Classic
+              run: |
+                  corepack enable
+                  corepack prepare yarn@1.22.22 --activate
+
+            - name: Install dependencies
+              run: yarn install --frozen-lockfile
+
+            - name: Build app
+              run: yarn build
+
+            - name: Deploy public/ to server root
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+              with:
+                  server: ${{ secrets.FTP_SERVER }}
+                  port: ${{ secrets.FTP_PORT }}
+                  username: ${{ secrets.FTP_USERNAME }}
+                  password: ${{ secrets.FTP_PASSWORD }}
+                  protocol: ftp
+                  local-dir: ./public/
+                  server-dir: ${{ secrets.FTP_SERVER_DIR }}
+                  exclude: |
+                      **/.DS_Store
+                      **/.git*
+                      **/.github/**
+                      **/.env
+                      **/.env.*
+                      **/*.env
+                      **/*.env.*
+                  state-name: .ftp-deploy-public-state.json
