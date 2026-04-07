@@ -59,7 +59,8 @@
         "instructions0": "Bitte schalte deine Blinkenstar an",
         "instructions1": "Verbinde das Audio-Kabel mit deinem Computer und deiner Blinkenstar",
         "instructions2": "Stelle die Lautstärke auf das Maxmimum!",
-        "instructions3": "Drücke auf den Übertragen-Button"
+        "instructions3": "Drücke auf den Übertragen-Button",
+        "transferring_status": "Audio wird übertragen... {{progress}}%"
     },
     "share_dialog": {
         "title": "Animation teilen",

@@ -4,7 +4,12 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { range } from 'lodash'
 import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
+import LinearProgress from '@mui/material/LinearProgress'
+import Typography from '@mui/material/Typography'
 import SendIcon from '@mui/icons-material/Send'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import CloseIcon from '@mui/icons-material/Close'
@@ -26,6 +31,9 @@ const style = {
         display: 'flex',
         flexDirection: 'column',
         padding: 0
+    },
+    progressWrap: {
+        marginTop: 16
     }
 }
 
@@ -37,22 +45,51 @@ export default function RightMenu(): Node {
     const email = useSelector((state) => state.email)
 
     const [transferOpen, setTransferOpen] = useState<boolean>(false)
+    const [transferProgress, setTransferProgress] = useState<number>(0)
+    const [isTransferring, setIsTransferring] = useState<boolean>(false)
     const [authOpen, setAuthOpen] = useState<boolean>(false)
 
     const handleTransfer = useCallback(() => {
         if (animations.size > 0) {
+            setTransferProgress(0)
             setTransferOpen(true)
         }
     }, [animations.size])
 
     const handleCancelTransfer = useCallback(() => {
+        if (isTransferring) {
+            return
+        }
         setTransferOpen(false)
-    }, [])
+        setTransferProgress(0)
+    }, [isTransferring])
 
     const handleConfirmTransfer = useCallback(() => {
-        setTransferOpen(false)
-        transfer(animations)
-    }, [])
+        setIsTransferring(true)
+        setTransferProgress(0)
+
+        const didStart = transfer(animations, {
+            onProgress: (progress) => {
+                setTransferProgress(progress)
+            },
+            onComplete: () => {
+                setTransferProgress(100)
+                setIsTransferring(false)
+                setTransferOpen(false)
+            },
+            onError: () => {
+                setIsTransferring(false)
+                setTransferProgress(0)
+            }
+        })
+
+        if (!didStart) {
+            setIsTransferring(false)
+            setTransferProgress(0)
+        }
+    }, [animations])
+
+    const transferStatus = t('transfer_dialog.transferring_status', { progress: Math.round(transferProgress) })
 
     const handleLogout = useCallback(() => {
         dispatch(logout())
@@ -83,24 +120,39 @@ export default function RightMenu(): Node {
                 </Button>
             )}
 
-            <Dialog open={transferOpen} onClose={handleCancelTransfer} aria-labelledby="transfer-dialog-title">
-                <div style={{ padding: 16 }}>
+            <Dialog
+                open={transferOpen}
+                onClose={handleCancelTransfer}
+                aria-labelledby="transfer-dialog-title"
+                disableEscapeKeyDown={isTransferring}
+            >
+                <DialogTitle id="transfer-dialog-title">{t('transfer_dialog.title')}</DialogTitle>
+                <DialogContent>
                     <div style={style.instructionList}>{flashInstructions}</div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-                        <Button variant="text" color="secondary" onClick={handleCancelTransfer} startIcon={<CloseIcon />}>
-                            {t('transfer_dialog.cancel')}
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleConfirmTransfer}
-                            startIcon={<SendIcon />}
-                            style={{ marginLeft: 8 }}
-                        >
-                            {t('transfer_dialog.transfer')}
-                        </Button>
-                    </div>
-                </div>
+                    {isTransferring ? (
+                        <div style={style.progressWrap}>
+                            <Typography variant="body2" gutterBottom>
+                                {transferStatus}
+                            </Typography>
+                            <LinearProgress variant="determinate" value={transferProgress} />
+                        </div>
+                    ) : null}
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="text" color="secondary" onClick={handleCancelTransfer} startIcon={<CloseIcon />} disabled={isTransferring}>
+                        {t('transfer_dialog.cancel')}
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleConfirmTransfer}
+                        startIcon={<SendIcon />}
+                        style={{ marginLeft: 8 }}
+                        disabled={isTransferring}
+                    >
+                        {t('transfer_dialog.transfer')}
+                    </Button>
+                </DialogActions>
             </Dialog>
 
             <AuthDialog isOpen={authOpen} onClose={() => setAuthOpen(false)} />

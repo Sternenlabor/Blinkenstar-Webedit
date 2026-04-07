@@ -4,44 +4,102 @@ import Modem from './modem'
 import ModemLegacy from './modemLegacy'
 import type { Animation } from 'Reducer'
 import type { Map } from 'immutable'
+const { DEFAULT_SAMPLE_RATE, getPlaybackDurationMs, getTransferProgress } = require('./transferProgress')
 
 var transferActive = 0
-var audioCtx: AudioContext = createAudioContext(48000)
+var audioCtx: AudioContext = createAudioContext(DEFAULT_SAMPLE_RATE)
 
-export default function transfer(animations: Map<string, Animation>) {
+type TransferCallbacks = {
+    onProgress?: (progress: number) => mixed,
+    onComplete?: () => mixed,
+    onError?: (error: Error) => mixed
+}
+
+export default function transfer(animations: Map<string, Animation>, callbacks: TransferCallbacks = {}): boolean {
     if (transferActive === 1) {
         console.log('did not start transfer because already running!')
-        return
+        if (callbacks.onError) {
+            callbacks.onError(new Error('Transfer already running'))
+        }
+        return false
     }
+
     transferActive = 1
-    setTimeout(() => (transferActive = 0), 4000) // iOS workaround!
 
-    // get data signals for the legacy firmware
-    let modem = new ModemLegacy(animations)
-    let data = modem.generateAudio()
+    try {
+        // get data signals for the legacy firmware
+        let modem = new ModemLegacy(animations)
+        let data = modem.generateAudio()
 
-    // get data signals for the v2 firmware
-    let modem2 = new Modem(animations)
-    let data2 = modem2.generateAudio()
+        // get data signals for the v2 firmware
+        let modem2 = new Modem(animations)
+        let data2 = modem2.generateAudio()
 
-    playTone(Float32Concat(data2, data))
+        playTone(Float32Concat(data2, data), callbacks)
+        return true
+    } catch (error) {
+        transferActive = 0
+        if (callbacks.onError && error instanceof Error) {
+            callbacks.onError(error)
+        }
+        console.error(error)
+        return false
+    }
 }
 
 window.playTone = function (array) {
+    playTone(array)
+}
+
+function playTone(array, callbacks: TransferCallbacks = {}) {
     array = array || window.lastArray
     window.lastArray = array
 
-    var buffer = audioCtx.createBuffer(1, array.length, 48000)
+    var totalDurationMs = getPlaybackDurationMs(array.length, DEFAULT_SAMPLE_RATE)
+    var startedAt = Date.now()
+    var completed = false
+    var progressTimer
+
+    var buffer = audioCtx.createBuffer(1, array.length, DEFAULT_SAMPLE_RATE)
     buffer.getChannelData(0).set(array)
 
     var source = audioCtx.createBufferSource()
     source.buffer = buffer
     source.connect(audioCtx.destination)
 
-    source.onended = () => {
-        transferActive = 0 // not reliably reached in iOS !?
+    const completeTransfer = () => {
+        if (completed) {
+            return
+        }
+
+        completed = true
+        clearInterval(progressTimer)
+        transferActive = 0
+
+        if (callbacks.onProgress) {
+            callbacks.onProgress(100)
+        }
+
+        if (callbacks.onComplete) {
+            callbacks.onComplete()
+        }
     }
+
+    if (callbacks.onProgress) {
+        callbacks.onProgress(0)
+    }
+
+    source.onended = completeTransfer
     source.start(0)
+
+    progressTimer = setInterval(() => {
+        if (callbacks.onProgress) {
+            callbacks.onProgress(getTransferProgress(Date.now() - startedAt, totalDurationMs))
+        }
+    }, 100)
+
+    // iOS sometimes misses onended, so finish by elapsed playback time as well.
+    setTimeout(completeTransfer, totalDurationMs + 100)
 }
 
 window.startTest = function (interval) {
@@ -68,9 +126,9 @@ function Float32Concat(first, second) {
 //this improves the reliability of data transmission on some hardware platforms (stabilizing sound gain ?!)
 startSilence()
 function startSilence() {
-    let audioSilence: AudioContext = createAudioContext(48000)
-    let emptyArray = _.fill(new Array(48000), 0)
-    let buffer = audioSilence.createBuffer(1, emptyArray.length, 48000)
+    let audioSilence: AudioContext = createAudioContext(DEFAULT_SAMPLE_RATE)
+    let emptyArray = _.fill(new Array(DEFAULT_SAMPLE_RATE), 0)
+    let buffer = audioSilence.createBuffer(1, emptyArray.length, DEFAULT_SAMPLE_RATE)
     buffer.getChannelData(0).set(emptyArray)
     let source = audioSilence.createBufferSource()
     source.connect(audioSilence.destination)
