@@ -3,6 +3,7 @@ name: Deploy public/ to FTP (main)
 on:
     push:
         branches:
+            - master
             - main
 
 concurrency:
