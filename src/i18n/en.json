@@ -60,7 +60,7 @@
         "instructions1": "Connect the audio cable to the computer and your Blinkenstar",
         "instructions2": "Turn up the volume to maximum!",
         "instructions3": "Click the transfer button",
-        "transferring_status": "Transferring audio... {{progress}}%"
+        "transferring_status": "Transferring... {{progress}}%"
     },
     "share_dialog": {
         "title": "Share",
