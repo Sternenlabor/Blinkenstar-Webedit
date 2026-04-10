@@ -1,5 +1,5 @@
 /* @flow */
-import React, { Node } from 'react';
+import React, { Node } from 'react'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
@@ -11,34 +11,40 @@ import CloseIcon from '@mui/icons-material/Close'
 import SendIcon from '@mui/icons-material/Send'
 
 type Props = {
-    cancelLabel: string,
-    instructions: string[],
-    isOpen: boolean,
-    isTransferring: boolean,
-    onClose: (() => void),
-    onConfirm: (() => void),
-    progress: number,
-    statusText: string,
-    submitLabel: string,
+    cancelLabel: string
+    instructions: string[]
+    isOpen: boolean
+    isTransferring: boolean
+    onClose: () => void
+    onConfirm: () => void
+    progress: number
+    statusText: string
+    submitLabel: string
     title: string
-};
+}
 
-export default function TransferDialog(
-    {
-        cancelLabel,
-        instructions,
-        isOpen,
-        isTransferring,
-        onClose,
-        onConfirm,
-        progress,
-        statusText,
-        submitLabel,
-        title
-    }: Props
-): Node {
+export default function TransferDialog({
+    cancelLabel,
+    instructions,
+    isOpen,
+    isTransferring,
+    onClose,
+    onConfirm,
+    progress,
+    statusText,
+    submitLabel,
+    title
+}: Props): Node {
+    const handleDialogClose = (_event: React.SyntheticEvent, reason: string) => {
+        if (isTransferring && reason === 'escapeKeyDown') {
+            return
+        }
+
+        onClose()
+    }
+
     return (
-        <Dialog open={isOpen} onClose={onClose} aria-labelledby="transfer-dialog-title" disableEscapeKeyDown={isTransferring}>
+        <Dialog open={isOpen} onClose={handleDialogClose} aria-labelledby="transfer-dialog-title">
             <DialogTitle id="transfer-dialog-title">{title}</DialogTitle>
             <DialogContent>
                 {instructions.map((instruction, index) => (

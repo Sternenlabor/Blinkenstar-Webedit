@@ -1,2 +1,1 @@
-require('./external/Roboto.css');
-require('font-awesome/css/font-awesome.css');
+require('./external/Roboto.css')

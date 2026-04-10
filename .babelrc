@@ -1,20 +1,20 @@
 {
-  "presets": [
-    [
-      "@babel/preset-env",
-      {
-        "targets": { "browsers": "> 0.25%, not dead" },
-        "useBuiltIns": "usage",
-        "corejs": 3
-      }
+    "presets": [
+        [
+            "@babel/preset-env",
+            {
+                "targets": { "browsers": "> 0.25%, not dead" },
+                "useBuiltIns": "usage",
+                "corejs": 3
+            }
+        ],
+        [
+            "@babel/preset-react",
+            {
+                "runtime": "automatic"
+            }
+        ],
+        "@babel/preset-typescript"
     ],
-    ["@babel/preset-react", {
-      "runtime": "automatic"
-    }],
-    "@babel/preset-typescript"
-  ],
-  "plugins": [
-    ["@babel/plugin-proposal-decorators", { "legacy": true }],
-    "@babel/plugin-proposal-optional-chaining"
-  ]
+    "plugins": [["@babel/plugin-proposal-decorators", { "legacy": true }]]
 }

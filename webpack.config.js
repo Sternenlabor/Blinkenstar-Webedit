@@ -91,15 +91,9 @@ module.exports = {
                 loader: 'babel-loader',
                 options: { cacheDirectory: true }
             },
-            {
-                // Leave inline-css-loader rule as is.
-                test: /\.(CSS|css)\.js$/,
-                exclude: /(node_modules)/,
-                loader: 'inline-css-loader'
-            },
-            { test: /\.pdf$/, loader: 'file-loader' },
-            { test: /\.(eot|ttf|otf|woff2?)(\?.*)?$/, loader: 'file-loader' },
-            { test: /\.(jpg|png|gif|jpeg|ico)$/, loader: 'url-loader' },
+            { test: /\.pdf$/, type: 'asset/resource' },
+            { test: /\.(eot|ttf|otf|woff2?)(\?.*)?$/, type: 'asset/resource' },
+            { test: /\.(jpg|png|gif|jpeg|ico)$/i, type: 'asset' },
             {
                 test: /\.css$/,
                 use: ['style-loader', 'css-loader']

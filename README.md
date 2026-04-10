@@ -1,15 +1,13 @@
 # webedit-react – Blinkenstar WebInterface
 
-[![Build Status](https://travis-ci.org/blinkenstar/webedit-react.svg?branch=master)](https://travis-ci.org/blinkenstar/webedit-react)
-
 Visit the deployed application at: [http://your-domain.com/webedit-react](http://your-domain.com/webedit-react)
 
 ## Quickstart
 
 #### Frontend Setup
 
-* Install NodeJS v8 or higher: https://nodejs.org/en/download/
-* Install Yarn: https://yarnpkg.com
+- Install Node.js 20.17.0 or newer: https://nodejs.org/en/download/
+- Use Yarn 1.22.22 or newer (or npm if you prefer the npm scripts)
 
 #### Getting Started with the Code
 
@@ -22,17 +20,26 @@ To run the development server:
 
     yarn dev
 
+To run the frontend and local PHP backend together:
+
+    yarn dev:all
+
+To run the PHP backend only:
+
+    yarn backend
+
 You can now access the web interface at [http://127.0.0.1:8080](http://127.0.0.1:8080).
+The local API is served at [http://localhost:8000](http://localhost:8000).
 
 #### Backend Setup (PHP & MySQL)
 
 This project now uses a REST API built in PHP with MySQL on a standard LAMP stack.
 
 1. **Database Initialization:**  
-   Execute the provided SQL statements (see the database documentation) to create the following tables:  
-   - `users`  
-   - `animations`  
-   - `public_gallery`
+   Execute the provided SQL statements (see the database documentation) to create the following tables:
+    - `users`
+    - `animations`
+    - `public_gallery`
 
 2. **Deploy the API:**  
    Place the PHP scripts (db.php, signup.php, login.php, logout.php, user.php, animations.php, animation.php, gallery.php, admin-gallery.php, review.php) in an `/api` directory on your LAMP server and adjust the database credentials in **db.php** accordingly.
@@ -61,15 +68,16 @@ Refer to the SQL documentation (provided separately) for instructions on how to 
 
 ## Notes
 
-* To test the interface on multiple devices, use `webpack-dev-server --host <your-ip-address>`.
-* See the MySQL and PHP documentation for advanced configuration and security practices.
+- To test the interface on multiple devices, use `webpack-dev-server --host <your-ip-address>`.
+- Run the full repo verification with `yarn test`.
+- See the MySQL and PHP documentation for advanced configuration and security practices.
 
 ## Contributors
 
-* Sebastian Muszytowski (https://github.com/muzy)
-* Leonard Techel (https://github.com/barnslig)
-* https://github.com/marudor
-* Chris Veigl (https://github.com/ChrisVeigl)
-* Overflo (https://github.com/overflo23)
-* Chris Hager (https://github.com/metachris)
-* Flo Lauber (https://github.com/sushimako)
+- Sebastian Muszytowski (https://github.com/muzy)
+- Leonard Techel (https://github.com/barnslig)
+- https://github.com/marudor
+- Chris Veigl (https://github.com/ChrisVeigl)
+- Overflo (https://github.com/overflo23)
+- Chris Hager (https://github.com/metachris)
+- Flo Lauber (https://github.com/sushimako)

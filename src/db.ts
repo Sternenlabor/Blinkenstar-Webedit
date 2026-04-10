@@ -119,10 +119,21 @@ export async function fetchRemoteAnimations(uid) {
  * Fetch the public gallery
  */
 export async function fetchPublicGallery(): Promise<Animation[]> {
-    const res = await fetch(`${API_URL}/gallery.php`)
-    const data = await res.json()
-    // Ensure data is an array
-    return Array.isArray(data) ? data.map(mapAnimationToLocal) : []
+    try {
+        const res = await fetch(`${API_URL}/gallery.php`)
+
+        if (!res.ok) {
+            console.error(`Failed to load public gallery (${res.status} ${res.statusText})`)
+            return []
+        }
+
+        const data = await res.json()
+
+        return Array.isArray(data) ? data.map(mapAnimationToLocal) : []
+    } catch (error) {
+        console.error('Failed to load public gallery:', error)
+        return []
+    }
 }
 
 /**

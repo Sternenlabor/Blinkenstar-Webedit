@@ -1,6 +1,5 @@
 // @flow
 /* eslint no-bitwise: 0 */
-/* eslint-disable */
 import _ from 'lodash'
 import { List, Map } from 'immutable'
 import type { Animation } from 'Reducer'

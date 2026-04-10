@@ -1,5 +1,5 @@
 /* @flow */
-import React, { useState, useCallback, Node, ChangeEvent } from 'react';
+import React, { useState, useCallback, Node, ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import font from 'font'
 import Box from '@mui/material/Box'
@@ -13,42 +13,22 @@ import type { Animation } from 'Reducer'
 import AnimationPreview from './AnimationPreview'
 import EditorPanel from './editor/EditorPanel'
 import EditorSliderRow from './editor/EditorSliderRow'
+import editorSpacing from './editor/editorSpacing'
 
 const style = {
-    textField: {
-        flexShrink: 0,
-        width: 256,
-        marginBottom: 16
-    },
-    sliderContainer: {
-        display: 'flex',
-        alignItems: 'center',
-        marginTop: 15
-    },
     sliderLabel: {
         flex: '1 1 25%',
         marginRight: 10
-    },
-    slider: {
-        flex: '1 1 75%',
-        marginLeft: 15,
-        marginRight: 15
     }
 }
 
 type Props = {
-    animation: Animation,
-    onUpdate: ((animation: Animation) => unknown),
-    onShare: ((animation: Animation) => unknown)
-};
+    animation: Animation
+    onUpdate: (animation: Animation) => unknown
+    onShare: (animation: Animation) => unknown
+}
 
-export default function TextEditor(
-    {
-        animation,
-        onUpdate,
-        onShare
-    }: Props
-): Node {
+export default function TextEditor({ animation, onUpdate, onShare }: Props): Node {
     const { t } = useTranslation()
     const [livePreview, setLivePreview] = useState<boolean>(true)
 
@@ -124,7 +104,7 @@ export default function TextEditor(
             <Divider sx={{ my: 2, background: 'transparent' }} />
 
             <TextField
-                sx={style.textField}
+                sx={editorSpacing.fieldSx}
                 id="text"
                 label={t('textEditor.textPlaceholder')}
                 placeholder={t('textEditor.textPlaceholder')}
@@ -133,7 +113,7 @@ export default function TextEditor(
             />
 
             <TextField
-                sx={style.textField}
+                sx={editorSpacing.fieldSx}
                 id="name"
                 label={t('textEditor.name')}
                 placeholder={t('textEditor.name')}
@@ -143,16 +123,30 @@ export default function TextEditor(
 
             <EditorSliderRow label={t('textEditor.speed')} max={15} min={0} onChange={handleSpeedChange} step={1} value={animation.speed} />
 
-            <EditorSliderRow label={t('textEditor.delay')} max={7.5} min={0} onChange={handleDelayChange} step={0.5} value={animation.delay} />
+            <EditorSliderRow
+                label={t('textEditor.delay')}
+                max={7.5}
+                min={0}
+                onChange={handleDelayChange}
+                step={0.5}
+                value={animation.delay}
+            />
 
-            <EditorSliderRow label={t('textEditor.repeat')} max={15} min={0} onChange={handleRepeatChange} step={1} value={animation.repeat} />
+            <EditorSliderRow
+                label={t('textEditor.repeat')}
+                max={15}
+                min={0}
+                onChange={handleRepeatChange}
+                step={1}
+                value={animation.repeat}
+            />
 
-            <Box sx={style.sliderContainer}>
+            <Box sx={editorSpacing.toggleRowSx}>
                 <Typography sx={style.sliderLabel}>{t('textEditor.rtl')}</Typography>
                 <Switch checked={Boolean(animation.direction)} onChange={handleDirectionChange} />
             </Box>
 
-            <Box sx={style.sliderContainer}>
+            <Box sx={editorSpacing.toggleRowSx}>
                 <Typography sx={style.sliderLabel}>{t('textEditor.livePreview')}</Typography>
                 <Switch checked={livePreview} onChange={handlePreviewChange} />
             </Box>

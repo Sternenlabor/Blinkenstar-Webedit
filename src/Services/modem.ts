@@ -1,6 +1,5 @@
 // @flow
 /* eslint no-bitwise: 0 */
-/* eslint-disable */
 
 /* new modem function,
  *  cures transfer problems with different audio hardware

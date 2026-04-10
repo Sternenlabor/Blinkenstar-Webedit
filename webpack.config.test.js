@@ -27,3 +27,19 @@ test('build script removes stale public output before webpack runs', () => {
 test('start script does not use removed webpack-dev-server inline mode', () => {
     assert.doesNotMatch(pkg.scripts.start, /(^|\s)--inline(\s|$)/)
 })
+
+test('dev frontend script does not depend on webpack-dashboard', () => {
+    assert.ok(pkg.scripts['dev:frontend'], 'expected a dev:frontend script')
+    assert.doesNotMatch(pkg.scripts['dev:frontend'], /webpack-dashboard/)
+})
+
+test('webpack uses asset modules instead of legacy file and url loaders', () => {
+    const rules = config.module && Array.isArray(config.module.rules) ? config.module.rules : []
+
+    assert.ok(rules.some((rule) => rule.test && rule.test.test('.pdf') && rule.type === 'asset/resource'))
+    assert.ok(rules.some((rule) => rule.test && rule.test.test('.woff2') && rule.type === 'asset/resource'))
+    assert.ok(rules.some((rule) => rule.test && rule.test.test('.png') && rule.type === 'asset'))
+    assert.ok(!rules.some((rule) => rule.loader === 'file-loader'))
+    assert.ok(!rules.some((rule) => rule.loader === 'url-loader'))
+    assert.ok(!rules.some((rule) => rule.loader === 'inline-css-loader'))
+})

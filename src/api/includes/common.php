@@ -5,8 +5,8 @@ require_once __DIR__ . '/Auth.php';
 
 // Set CORS headers
 header('Content-Type: application/json');
-if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] === ALLOWED_ORIGIN) {
-    header("Access-Control-Allow-Origin: " . ALLOWED_ORIGIN);
+if (isset($_SERVER['HTTP_ORIGIN']) && is_allowed_origin($_SERVER['HTTP_ORIGIN'])) {
+    header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
     header("Access-Control-Allow-Credentials: true");
 }
 

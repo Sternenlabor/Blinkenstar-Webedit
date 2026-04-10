@@ -1,38 +1,36 @@
 /* @flow */
-import React, { Node } from 'react';
+import React, { Node } from 'react'
 import { useTranslation } from 'react-i18next'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import FileCopyIcon from '@mui/icons-material/FileCopy'
-import PauseCircleOutlineIcon from '@mui/icons-material/PauseCircleOutline'
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline'
+import PauseCircleOutlinedIcon from '@mui/icons-material/PauseCircleOutlined'
+import PlayCircleOutlinedIcon from '@mui/icons-material/PlayCircleOutlined'
 import SkipNextIcon from '@mui/icons-material/SkipNext'
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious'
 import type { Animation } from 'Reducer'
 import EditorActionRow from '../editor/EditorActionRow'
 
 type Props = {
-    animation: Animation,
-    onCopy: (() => void),
-    onDelete: (() => void),
-    onNext: (() => void),
-    onPrevious: (() => void),
-    onTogglePlaying: (() => void),
+    animation: Animation
+    onCopy: () => void
+    onDelete: () => void
+    onNext: () => void
+    onPrevious: () => void
+    onTogglePlaying: () => void
     playing: boolean
-};
+}
 
-export default function PixelEditorFrameControls(
-    {
-        animation,
-        onCopy,
-        onDelete,
-        onNext,
-        onPrevious,
-        onTogglePlaying,
-        playing
-    }: Props
-): Node {
+export default function PixelEditorFrameControls({
+    animation,
+    onCopy,
+    onDelete,
+    onNext,
+    onPrevious,
+    onTogglePlaying,
+    playing
+}: Props): Node {
     const { t } = useTranslation()
     const currentFrame = animation.animation.currentFrame
     const frameCount = animation.animation.frames
@@ -45,7 +43,7 @@ export default function PixelEditorFrameControls(
                     variant="text"
                     color="primary"
                     onClick={onTogglePlaying}
-                    startIcon={playing ? <PauseCircleOutlineIcon /> : <PlayCircleOutlineIcon />}
+                    startIcon={playing ? <PauseCircleOutlinedIcon /> : <PlayCircleOutlinedIcon />}
                 >
                     {playing ? t('pixelEditor.pause', 'Pause') : t('pixelEditor.play', 'Play')}
                 </Button>
@@ -53,7 +51,13 @@ export default function PixelEditorFrameControls(
             </EditorActionRow>
 
             <EditorActionRow>
-                <Button variant="text" color="primary" disabled={playing || currentFrame === 0} onClick={onPrevious} startIcon={<SkipPreviousIcon />}>
+                <Button
+                    variant="text"
+                    color="primary"
+                    disabled={playing || currentFrame === 0}
+                    onClick={onPrevious}
+                    startIcon={<SkipPreviousIcon />}
+                >
                     {t('pixelEditor.previousFrame', 'Previous')}
                 </Button>
                 <Button variant="text" color="primary" disabled={playing} onClick={onDelete} startIcon={<DeleteForeverIcon />}>

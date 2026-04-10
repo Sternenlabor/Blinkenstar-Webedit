@@ -1,5 +1,5 @@
 /* @flow */
-import React, { Node } from 'react';
+import React, { Node } from 'react'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import ListItem from '@mui/material/ListItem'
@@ -14,20 +14,13 @@ const style = {
 }
 
 type Props = {
-    animation: Animation,
-    selected: boolean,
-    onRemove: ((arg0: string) => void),
-    onClick?: (() => void)
-};
+    animation: Animation
+    selected: boolean
+    onRemove: (arg0: string) => void
+    onClick?: () => void
+}
 
-function AnimationInMenu(
-    {
-        animation,
-        selected,
-        onRemove,
-        onClick
-    }: Props
-): Node {
+function AnimationInMenu({ animation, selected, onRemove, onClick }: Props): Node {
     const handleRemove = (e: React.MouseEvent) => {
         e.stopPropagation()
         onRemove(animation.id)
@@ -46,7 +39,10 @@ function AnimationInMenu(
                 <Box style={style.preview}>
                     <AnimationPreview animation={animation} size="thumb" offColor="black" />
                 </Box>
-                <ListItemText primary={animation.name || animation.text || '\u00A0'} primaryTypographyProps={{ noWrap: true, sx: { lineHeight: 1.1 } }} />
+                <ListItemText
+                    primary={animation.name || animation.text || '\u00A0'}
+                    slotProps={{ primary: { noWrap: true, sx: { lineHeight: 1.1 } } }}
+                />
             </ListItemButton>
         </ListItem>
     )

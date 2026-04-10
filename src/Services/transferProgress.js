@@ -1,5 +1,3 @@
-/* eslint-env node */
-
 const DEFAULT_SAMPLE_RATE = 48000
 
 function clamp(value, min, max) {

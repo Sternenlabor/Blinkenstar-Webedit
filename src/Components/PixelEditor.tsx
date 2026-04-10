@@ -1,5 +1,5 @@
 /* @flow */
-import React, { useState, useCallback, Node } from 'react';
+import React, { useState, useCallback, Node } from 'react'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -9,6 +9,7 @@ import { getFrameColumns } from '../utils'
 import type { Animation } from 'Reducer'
 import EditorPanel from './editor/EditorPanel'
 import EditorSliderRow from './editor/EditorSliderRow'
+import editorSpacing from './editor/editorSpacing'
 import PixelEditorCanvas from './pixelEditor/PixelEditorCanvas'
 import PixelEditorFrameControls from './pixelEditor/PixelEditorFrameControls'
 import {
@@ -23,27 +24,13 @@ import {
 } from './pixelEditor/frameState'
 import usePixelEditorDrawing from './pixelEditor/usePixelEditorDrawing'
 
-const style = {
-    textField: {
-        flexShrink: 0,
-        width: 256,
-        marginBottom: 16
-    }
+type Props = {
+    animation: Animation
+    onUpdate: (animation: Animation) => unknown
+    onShare: (animation: Animation) => unknown
 }
 
-type Props = {
-    animation: Animation,
-    onUpdate: ((animation: Animation) => unknown),
-    onShare: ((animation: Animation) => unknown)
-};
-
-export default function PixelEditor(
-    {
-        animation,
-        onUpdate,
-        onShare
-    }: Props
-): Node {
+export default function PixelEditor({ animation, onUpdate, onShare }: Props): Node {
     const { t } = useTranslation()
     const [playing, setPlaying] = useState<boolean>(false)
     const { cursor, mouseDown, mouseOver, mouseUp } = usePixelEditorDrawing(animation, onUpdate)
@@ -109,18 +96,39 @@ export default function PixelEditor(
             />
 
             <TextField
-                sx={style.textField}
+                sx={editorSpacing.fieldSx}
                 label={t('pixelEditor.name', 'Name')}
                 value={animation.name}
                 onChange={(e) => handleChange('name', e)}
                 fullWidth
             />
 
-            <EditorSliderRow label={t('textEditor.speed', 'Speed')} max={15} min={0} onChange={handleSpeedChange} step={1} value={animation.speed} />
+            <EditorSliderRow
+                label={t('textEditor.speed', 'Speed')}
+                max={15}
+                min={0}
+                onChange={handleSpeedChange}
+                step={1}
+                value={animation.speed}
+            />
 
-            <EditorSliderRow label={t('textEditor.delay', 'Delay')} max={7.5} min={0} onChange={handleDelayChange} step={0.5} value={animation.delay} />
+            <EditorSliderRow
+                label={t('textEditor.delay', 'Delay')}
+                max={7.5}
+                min={0}
+                onChange={handleDelayChange}
+                step={0.5}
+                value={animation.delay}
+            />
 
-            <EditorSliderRow label={t('pixelEditor.repeat', 'Repeat')} max={15} min={0} onChange={handleRepeatChange} step={1} value={animation.repeat} />
+            <EditorSliderRow
+                label={t('pixelEditor.repeat', 'Repeat')}
+                max={15}
+                min={0}
+                onChange={handleRepeatChange}
+                step={1}
+                value={animation.repeat}
+            />
         </EditorPanel>
     )
 }

@@ -1,21 +1,16 @@
 /* @flow */
-import React, { useState, Node } from 'react';
+import React, { useState, Node } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Snackbar, Alert, Typography } from '@mui/material'
 import { Link, Share, Close } from '@mui/icons-material'
 import type { Animation } from 'Reducer'
 
 type Props = {
-    animation?: Animation,
-    close: (() => unknown)
-};
+    animation?: Animation
+    close: () => unknown
+}
 
-export default function ShareWidget(
-    {
-        animation,
-        close
-    }: Props
-): Node {
+export default function ShareWidget({ animation, close }: Props): Node {
     const { t } = useTranslation()
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false)
     const [snackbarMessage, setSnackbarMessage] = useState<string>('')
@@ -68,7 +63,7 @@ export default function ShareWidget(
                 <DialogTitle>{t('share_dialog.title')}</DialogTitle>
 
                 <DialogContent>
-                    <Stack spacing={2} py={1}>
+                    <Stack spacing={2} sx={{ py: 1 }}>
                         <Typography>{t('share_dialog.instructions')}</Typography>
 
                         <Stack direction="row" spacing={2}>
