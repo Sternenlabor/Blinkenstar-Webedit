@@ -11,31 +11,36 @@ type Props = {
     onClick?: () => void
 }
 
+function getMillisecondsPerFrame(speed: number = 1): number {
+    return 2.048 * (250 - 16 * speed)
+}
+
 function AnimationPreview({ animation, size, offColor, style, onClick }: Props): Node {
     const [currentFrame, setCurrentFrame] = useState<number>(0)
     const rAF = useRef<number>(0)
 
     useEffect(() => {
         const framesCount = numFrames(animation)
-        if (framesCount === 0) return
+        if (framesCount === 0) {
+            setCurrentFrame(0)
+            return undefined
+        }
 
-        // Local frame counter to avoid stale closure
-        let frame = currentFrame
+        let frame = 0
         const { direction = false, delay = 0, speed = 1 } = animation
+        const step = direction ? -1 : 1
+        const msPerFrame = getMillisecondsPerFrame(speed)
+        const lastFrame = lastFrameIndex(animation)
+        let nextTime = performance.now()
 
-        // Calculate milliseconds per frame
-        const msPerFrame = 1000 / (1 / (0.002048 * (250 - 16 * speed)))
-        let nextTime = Date.now()
+        setCurrentFrame(frame)
 
-        const loop = () => {
-            const now = Date.now()
+        const loop = (now) => {
             if (now >= nextTime) {
-                // Advance or rewind frame
-                frame = (frame + (direction ? -1 : 1) + framesCount) % framesCount
+                frame = (frame + step + framesCount) % framesCount
                 setCurrentFrame(frame)
 
-                // If last frame and delay set, pause
-                const offset = frame === lastFrameIndex(animation) && delay > 0 ? delay * 1000 : msPerFrame
+                const offset = frame === lastFrame && delay > 0 ? delay * 1000 : msPerFrame
                 nextTime = now + offset
             }
             rAF.current = requestAnimationFrame(loop)

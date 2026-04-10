@@ -1,10 +1,10 @@
 // @flow
 import React, { type Node } from 'react'
 import { List } from 'immutable'
-import { over } from 'lodash'
 
 type Props = {
     columns: List<List<boolean>>,
+    cursor?: string,
     style?: { [string]: any },
     size?: 'thumb' | 'gallery' | 'small' | 'mid' | 'huge',
     offColor?: string,
@@ -36,7 +36,7 @@ const sizes = {
 
 type DotColumnProps = {
     data: List<boolean>,
-    row: number,
+    columnIndex: number,
     radius: number,
     offColor: string,
     cursor: string,
@@ -45,20 +45,20 @@ type DotColumnProps = {
     onMouseOver?: (r: number, c: number) => mixed
 }
 
-function DotColumn({ data, row, radius, offColor, cursor, onMouseDown, onMouseUp, onMouseOver }: DotColumnProps): Node {
+function DotColumn({ data, columnIndex, radius, offColor, cursor, onMouseDown, onMouseUp, onMouseOver }: DotColumnProps): Node {
     return (
         <g>
             {data.map((on, r) => (
                 <circle
                     key={r}
                     r={radius}
-                    cx={row * radius * 2.5 + radius * 1.5}
+                    cx={columnIndex * radius * 2.5 + radius * 1.5}
                     cy={r * radius * 2.5 + radius * 1.5}
                     fill={on ? 'red' : offColor}
                     style={{ cursor }}
-                    onMouseDown={onMouseDown ? () => onMouseDown(r, row) : undefined}
-                    onMouseUp={onMouseUp ? () => onMouseUp(r, row) : undefined}
-                    onMouseOver={onMouseOver ? () => onMouseOver(r, row) : undefined}
+                    onMouseDown={onMouseDown ? () => onMouseDown(r, columnIndex) : undefined}
+                    onMouseUp={onMouseUp ? () => onMouseUp(r, columnIndex) : undefined}
+                    onMouseOver={onMouseOver ? () => onMouseOver(r, columnIndex) : undefined}
                 />
             ))}
         </g>
@@ -67,6 +67,7 @@ function DotColumn({ data, row, radius, offColor, cursor, onMouseDown, onMouseUp
 
 function Frame({
     columns,
+    cursor,
     style = {},
     size = 'small',
     offColor = 'slategrey',
@@ -79,6 +80,7 @@ function Frame({
     const dim = radius * 2.5
     const width = 8 * dim + radius * 0.5
     const mergedStyle = { ...baseStyle, ...style }
+    const resolvedCursor = cursor || (mouseDownCallback ? 'pointer' : 'default')
 
     return (
         <div style={mergedStyle} onClick={onClick} onMouseUp={mouseUpCallback} onMouseLeave={mouseUpCallback} draggable="false">
@@ -88,10 +90,10 @@ function Frame({
                     <DotColumn
                         key={i}
                         data={col}
-                        row={i}
+                        columnIndex={i}
                         radius={radius}
                         offColor={offColor}
-                        cursor={mouseDownCallback ? 'pointer' : 'default'}
+                        cursor={resolvedCursor}
                         onMouseDown={mouseDownCallback}
                         onMouseUp={mouseUpCallback}
                         onMouseOver={mouseOverCallback}

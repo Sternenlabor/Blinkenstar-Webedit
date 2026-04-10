@@ -3,9 +3,12 @@ import React, { useEffect, type Node } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import App from './App'
+import Box from '@mui/material/Box'
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
 import Gallery from './Gallery'
 import AdminGalleryItem from './AdminGalleryItem'
+import GalleryGrid from './gallery/GalleryGrid'
 import { loadGallery, loadAdminGallery, addAnimationToGallery, removeAnimationFromGallery, reviewAnimation } from '../Actions/gallery'
 import type { Animation } from 'Reducer'
 import { Map } from 'immutable'
@@ -39,10 +42,6 @@ const style = {
     }
 }
 
-type Props = {
-    // No props passed; using store and hooks
-}
-
 function AdminGallery(): Node {
     const { t } = useTranslation()
 
@@ -70,20 +69,22 @@ function AdminGallery(): Node {
         .map((a) => a.originalId)
         .toJS()
 
-    const toReview = adminGallery
+    const toReview: Animation[] = adminGallery
         .valueSeq()
         .filter((a) => !a.originalId && (a.reviewedAt || -1) < (a.modifiedAt || 1))
         .sortBy((a) => a.modifiedAt || a.creationDate)
         .reverse()
+        .toArray()
 
-    const publicList = gallery
+    const publicList: Animation[] = gallery
         .valueSeq()
         .sortBy((a) => a.creationDate)
         .reverse()
+        .toArray()
 
     const handleAdd = (animation: Animation) => {
         dispatch(addAnimationToGallery(animation))
-        dispatch(reviewAnimation(animation, new Date()))
+        dispatch(reviewAnimation(animation, Date.now()))
     }
 
     const handleRemove = (animation: Animation) => {
@@ -93,34 +94,38 @@ function AdminGallery(): Node {
     }
 
     const handleArchive = (animation: Animation) => {
-        dispatch(reviewAnimation(animation, new Date()))
+        dispatch(reviewAnimation(animation, Date.now()))
     }
 
     return (
-        <div style={style.canvas}>
-            <div style={style.adminCanvas}>
-                <h2>{t('admin_gallery.review_title', 'User Animations for Review')}:</h2>
-                <div style={style.adminGallery}>
-                    {toReview.map((anim) => (
+        <Box sx={style.canvas}>
+            <Box sx={style.adminCanvas}>
+                <Typography component="h2" variant="h5" sx={{ mb: 2 }}>
+                    {t('admin_gallery.review_title')}
+                </Typography>
+                <GalleryGrid>
+                    {toReview.map((animation) => (
                         <AdminGalleryItem
-                            key={anim.id}
-                            animation={anim}
-                            buttonsDisabled={originalIds.includes(anim.id)}
+                            key={animation.id}
+                            animation={animation}
+                            buttonsDisabled={originalIds.includes(animation.id)}
                             handlePrimary={handleAdd}
                             handleSecondary={handleArchive}
                             primaryAction="add"
                             secondaryAction="archive"
                         />
                     ))}
-                </div>
-            </div>
-            <div style={style.publicCanvas}>
-                <h2>{t('admin_gallery.public_title', 'Public Gallery')}</h2>
-                <div style={style.publicFrame}>
+                </GalleryGrid>
+            </Box>
+            <Box sx={style.publicCanvas}>
+                <Typography component="h2" variant="h5" sx={{ mb: 2 }}>
+                    {t('admin_gallery.public_title')}
+                </Typography>
+                <Paper sx={style.publicFrame} elevation={0}>
                     <Gallery gallery={publicList} clickLabel={t('admin_gallery.unpublish')} clickIcon="remove" onClick={handleRemove} />
-                </div>
-            </div>
-        </div>
+                </Paper>
+            </Box>
+        </Box>
     )
 }
 

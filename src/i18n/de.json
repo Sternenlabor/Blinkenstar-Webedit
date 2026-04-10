@@ -70,9 +70,15 @@
         "close": "Schließen"
     },
     "gallery": {
-        "copy_animation": "Kopieren"
+        "copy_animation": "Kopieren",
+        "loading": "Galerie wird geladen…",
+        "no_animations": "Noch keine Animationen verfügbar"
     },
     "admin_gallery": {
+        "review_title": "Benutzeranimationen zur Prüfung",
+        "public_title": "Öffentliche Galerie",
+        "publish": "Veröffentlichen",
+        "archive": "Archivieren",
         "unpublish": "Entfernen"
     }
 }

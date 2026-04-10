@@ -1,9 +1,9 @@
 /* @flow */
-import React, { useEffect, useCallback, type Node } from 'react'
+import React, { useCallback, useEffect, useRef, type Node } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Paper, List, ListItem, ListItemAvatar, ListItemText, Divider, Button, Avatar } from '@mui/material'
+import { Paper, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Divider, Button, Avatar } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary'
 import AnimationInMenu from './AnimationInMenu'
@@ -11,6 +11,7 @@ import { newAnimation, addAnimation, removeAnimation, reset } from 'Actions/anim
 import { syncLibrary } from '../Actions/auth'
 import { INITIAL_ANIMATION_TEXT } from '../variables'
 import type { Animation } from 'Reducer'
+import { getDisplayAnimations, shouldSeedPlaceholderLibrary } from './menu/menuLibrary'
 
 type Props = {
     active: string,
@@ -20,40 +21,59 @@ type Props = {
 const styles = {
     wrap: { alignItems: 'center', display: 'flex', flexDirection: 'column' },
     list: { width: '100%' },
-    listItem: { backgroundColor: 'transparent', border: 'none' },
-    listItemActive: { backgroundColor: '#E0E0E0', border: 'none' },
     reset: { width: '100%', marginTop: '30px', minHeight: '34px', color: '#da1616' }
+}
+
+type MenuActionItemProps = {
+    icon: React.Node,
+    label: string,
+    onClick: () => void,
+    selected?: boolean
+}
+
+function MenuActionItem({ icon, label, onClick, selected = false }: MenuActionItemProps): Node {
+    return (
+        <ListItem disablePadding>
+            <ListItemButton onClick={onClick} selected={selected}>
+                <ListItemAvatar>
+                    <Avatar>{icon}</Avatar>
+                </ListItemAvatar>
+                <ListItemText primary={label} />
+            </ListItemButton>
+        </ListItem>
+    )
 }
 
 export default function Menu({ active, currentAnimationId }: Props): Node {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const { t } = useTranslation()
+    const syncedUserRef = useRef<?string>(null)
 
-    // Pull our pieces of state
-    const animations = useSelector((state) => state.animations) // Map<string, Animation>
-    const uid = useSelector((state) => state.uid) // '' or user id
-    const admin = useSelector((state) => state.admin) // boolean
+    const animations = useSelector((state) => state.animations)
+    const uid = useSelector((state) => state.uid)
+    const admin = useSelector((state) => state.admin)
 
-    // On mount: inject a default only for unauthenticated, then sync if logged in
     useEffect(() => {
-        if (animations.size === 0 && !uid) {
+        if (shouldSeedPlaceholderLibrary(animations, uid)) {
             const anim = newAnimation('text', INITIAL_ANIMATION_TEXT)
             dispatch(addAnimation(anim, uid))
         }
-        if (uid) {
+    }, [animations, dispatch, uid])
+
+    useEffect(() => {
+        if (!uid) {
+            syncedUserRef.current = null
+            return
+        }
+
+        if (syncedUserRef.current !== uid) {
+            syncedUserRef.current = uid
             dispatch(syncLibrary(uid, animations))
         }
-    }, [animations.size, dispatch, uid])
+    }, [animations, dispatch, uid])
 
-    // Build an array of all animations
-    const animArray: Animation[] = animations.valueSeq().toArray()
-    // Detect if any of these came from the server (they’ll have a user_id field)
-    const hasRemote = Boolean(uid && animArray.some((a: any) => a.user_id != null))
-    // Filter out only our in-memory placeholder (text===INITIAL_ANIMATION_TEXT && no user_id)
-    const displayAnims: Animation[] = hasRemote
-        ? animArray.filter((a: any) => !(a.type === 'text' && a.text === INITIAL_ANIMATION_TEXT && a.user_id == null))
-        : animArray
+    const displayAnimations: Animation[] = getDisplayAnimations(animations, uid)
 
     const handleRemove = useCallback(
         (animationId: string) => {
@@ -69,75 +89,44 @@ export default function Menu({ active, currentAnimationId }: Props): Node {
         }
     }, [dispatch, navigate, t])
 
-    const addTextAnimation = useCallback(() => {
-        const anim = newAnimation('text')
-        dispatch(addAnimation(anim, uid))
-        navigate(`/${anim.id}`)
-    }, [dispatch, navigate, uid])
-
-    const addPixelAnimation = useCallback(() => {
-        const anim = newAnimation('pixel')
-        dispatch(addAnimation(anim, uid))
-        navigate(`/${anim.id}`)
-    }, [dispatch, navigate, uid])
+    const handleCreateAnimation = useCallback(
+        (type: 'text' | 'pixel') => {
+            const animation = newAnimation(type)
+            dispatch(addAnimation(animation, uid))
+            navigate(`/${animation.id}`)
+        },
+        [dispatch, navigate, uid]
+    )
 
     return (
         <Paper style={styles.wrap} elevation={0}>
             <List style={styles.list}>
-                <ListItem component="button" onClick={addTextAnimation} style={styles.listItem}>
-                    <ListItemAvatar>
-                        <Avatar>
-                            <AddIcon />
-                        </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText primary={t('menu.addText')} />
-                </ListItem>
-
-                <ListItem component="button" onClick={addPixelAnimation} style={styles.listItem}>
-                    <ListItemAvatar>
-                        <Avatar>
-                            <AddIcon />
-                        </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText primary={t('menu.addAnimation')} />
-                </ListItem>
-
-                <ListItem
-                    component="button"
+                <MenuActionItem icon={<AddIcon />} label={t('menu.addText')} onClick={() => handleCreateAnimation('text')} />
+                <MenuActionItem icon={<AddIcon />} label={t('menu.addAnimation')} onClick={() => handleCreateAnimation('pixel')} />
+                <MenuActionItem
+                    icon={<PhotoLibraryIcon />}
+                    label={t('menu.gallery')}
                     onClick={() => navigate('/gallery')}
-                    style={active === 'gallery' ? styles.listItemActive : styles.listItem}
-                >
-                    <ListItemAvatar>
-                        <Avatar>
-                            <PhotoLibraryIcon />
-                        </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText primary={t('menu.gallery')} />
-                </ListItem>
+                    selected={active === 'gallery'}
+                />
 
                 {admin && (
-                    <ListItem
-                        component="button"
+                    <MenuActionItem
+                        icon={<PhotoLibraryIcon />}
+                        label={t('menu.admin_gallery')}
                         onClick={() => navigate('/gallery/admin')}
-                        style={active === 'admingallery' ? styles.listItemActive : styles.listItem}
-                    >
-                        <ListItemAvatar>
-                            <Avatar>
-                                <PhotoLibraryIcon />
-                            </Avatar>
-                        </ListItemAvatar>
-                        <ListItemText primary={t('menu.admin_gallery')} />
-                    </ListItem>
+                        selected={active === 'admingallery'}
+                    />
                 )}
 
                 <Divider />
 
-                {displayAnims.map((anim) => (
-                    <React.Fragment key={anim.id}>
+                {displayAnimations.map((animation) => (
+                    <React.Fragment key={animation.id}>
                         <AnimationInMenu
-                            animation={anim}
-                            selected={active === 'webedit' && anim.id === currentAnimationId}
-                            onClick={() => navigate(`/${anim.id}`)}
+                            animation={animation}
+                            selected={active === 'webedit' && animation.id === currentAnimationId}
+                            onClick={() => navigate(`/${animation.id}`)}
                             onRemove={handleRemove}
                         />
                         <Divider />

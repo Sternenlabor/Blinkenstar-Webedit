@@ -7,7 +7,7 @@
         "start": "BABEL_ENV=hot webpack-dev-server --host 0.0.0.0 --hot --progress --history-api-fallback",
         "dev:frontend": "cross-env NODE_ENV=development API_URL=http://localhost:8000 webpack-dashboard -- webpack-dev-server --host 0.0.0.0 --history-api-fallback",
         "dev": "cross-env NODE_ENV=development API_URL=http://localhost:8000 webpack-dev-server --host 0.0.0.0 --history-api-fallback",
-        "lint": "eslint src/**/*.js && eslint src/**/*.jsx",
+        "lint": "eslint \"src/**/*.{js,jsx}\"",
         "build": "node scripts/clean-public.js && cross-env NODE_ENV=production API_URL=/api webpack",
         "backend": "php -S localhost:8000 -t src/api",
         "dev:all": "concurrently \"npm run dev\" \"npm run backend\""
@@ -25,6 +25,7 @@
     "devDependencies": {
         "@babel/cli": "^7.27.0",
         "@babel/core": "^7.26.10",
+        "@babel/eslint-parser": "^7.28.6",
         "@babel/plugin-proposal-decorators": "^7.25.9",
         "@babel/plugin-proposal-optional-chaining": "^7.21.0",
         "@babel/preset-env": "^7.26.9",
@@ -37,6 +38,7 @@
         "cross-env": "^7.0.3",
         "css-loader": "^7.1.2",
         "dotenv": "^16.5.0",
+        "eslint": "8",
         "favicons": "^7.2.0",
         "favicons-webpack-plugin": "^6.0.1",
         "file-loader": "^6.2.0",

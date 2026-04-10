@@ -1,114 +1,106 @@
 /* @flow */
-import React, { useEffect, type Node } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import React, { useCallback, useState, type Node } from 'react'
 import { useTranslation } from 'react-i18next'
-import App from './App'
-import Gallery from './Gallery'
-import AdminGalleryItem from './AdminGalleryItem'
-import { loadGallery, loadAdminGallery, addAnimationToGallery, removeAnimationFromGallery, reviewAnimation } from '../Actions/gallery'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import AddIcon from '@mui/icons-material/Add'
+import ArchiveIcon from '@mui/icons-material/Archive'
+import RemoveIcon from '@mui/icons-material/Remove'
 import type { Animation } from 'Reducer'
-import { Map } from 'immutable'
+import AnimationPreview from './AnimationPreview'
+import Frame from './Frame'
+import GalleryCardContent from './gallery/GalleryCardContent'
+import { getFrameColumns } from '../utils'
 
-const style = {
-    canvas: {
-        display: 'flex',
-        width: '100%',
-        height: '100%',
-        padding: '20px'
-    },
-    adminCanvas: { width: '50%', padding: '20px', margin: '20px' },
-    publicCanvas: { width: '50%', padding: '20px', margin: '20px' },
-    adminGallery: { display: 'flex', flexWrap: 'wrap' },
-    publicFrame: {
-        border: '1px solid #d5d5d5',
-        backgroundColor: '#f9f9f9',
-        borderRadius: '3px',
-        padding: '15px'
-    }
+type ActionName = 'add' | 'archive' | 'remove'
+
+type Props = {
+    animation: Animation,
+    buttonsDisabled?: boolean,
+    handlePrimary: (Animation) => mixed,
+    handleSecondary?: (Animation) => mixed,
+    primaryAction: ActionName,
+    secondaryAction?: ActionName
 }
 
-type Props = {}
+const actionIcons = {
+    add: <AddIcon />,
+    archive: <ArchiveIcon />,
+    remove: <RemoveIcon />
+}
 
-function AdminGallery(): Node {
+function getActionLabel(t: (string, string) => string, action: ActionName): string {
+    if (action === 'add') {
+        return t('admin_gallery.publish', 'Publish')
+    }
+
+    if (action === 'archive') {
+        return t('admin_gallery.archive', 'Archive')
+    }
+
+    return t('admin_gallery.unpublish', 'Remove')
+}
+
+export default function AdminGalleryItem({
+    animation,
+    buttonsDisabled = false,
+    handlePrimary,
+    handleSecondary,
+    primaryAction,
+    secondaryAction
+}: Props): Node {
     const { t } = useTranslation()
+    const [playing, setPlaying] = useState<boolean>(false)
 
-    const uid: ?string = useSelector((state) => state.uid)
-    const admin: boolean = useSelector((state) => state.admin)
-    const gallery: Map<string, Animation> = useSelector((state) => state.gallery)
-    const adminGallery: Map<string, Animation> = useSelector((state) => state.adminGallery)
+    const handlePrimaryClick = useCallback(() => {
+        handlePrimary(animation)
+        setPlaying(false)
+    }, [animation, handlePrimary])
 
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
-
-    useEffect(() => {
-        if (uid != null) {
-            if (admin) {
-                dispatch(loadAdminGallery())
-                dispatch(loadGallery())
-            } else {
-                navigate('/gallery')
-            }
+    const handleSecondaryClick = useCallback(() => {
+        if (handleSecondary) {
+            handleSecondary(animation)
+            setPlaying(false)
         }
-    }, [uid, admin, dispatch, navigate])
+    }, [animation, handleSecondary])
 
-    const originalIds: string[] = gallery
-        .valueSeq()
-        .map((a) => a.originalId)
-        .toJS()
-
-    const pending = adminGallery
-        .valueSeq()
-        .filter((a) => !a.originalId && (a.reviewedAt || -1) < (a.modifiedAt || a.creationDate))
-        .sortBy((a) => a.modifiedAt || a.creationDate)
-        .reverse()
-
-    const publicItems = gallery
-        .valueSeq()
-        .sortBy((a) => a.creationDate)
-        .reverse()
-
-    const handleAdd = (anim: Animation) => {
-        dispatch(addAnimationToGallery(anim))
-        dispatch(reviewAnimation(anim, Date.now()))
-    }
-
-    const handleRemove = (anim: Animation) => {
-        dispatch(removeAnimationFromGallery(anim))
-        const original = adminGallery.get(anim.originalId)
-        if (original) dispatch(reviewAnimation(original, null))
-    }
-
-    const handleArchive = (anim: Animation) => {
-        dispatch(reviewAnimation(anim, Date.now()))
-    }
+    const previewColumns = getFrameColumns(animation, animation.animation.currentFrame)
+    const title = animation.name || animation.text || ''
 
     return (
-        <div style={style.canvas}>
-            <div style={style.adminCanvas}>
-                <h2>{t('admin_gallery.review_title', 'User Animations for Review')}:</h2>
-                <div style={style.adminGallery}>
-                    {pending.map((anim) => (
-                        <AdminGalleryItem
-                            key={anim.id}
-                            animation={anim}
-                            buttonsDisabled={originalIds.includes(anim.id)}
-                            handlePrimary={handleAdd}
-                            handleSecondary={handleArchive}
-                            primaryAction="add"
-                            secondaryAction="archive"
-                        />
-                    ))}
-                </div>
-            </div>
-            <div style={style.publicCanvas}>
-                <h2>{t('admin_gallery.public_title', 'Public Gallery')}</h2>
-                <div style={style.publicFrame}>
-                    <Gallery gallery={publicItems} clickLabel={t('admin_gallery.unpublish')} clickIcon="remove" onClick={handleRemove} />
-                </div>
-            </div>
-        </div>
+        <GalleryCardContent title={title}>
+            <Box onMouseEnter={() => setPlaying(true)} onMouseLeave={() => setPlaying(false)}>
+                {playing ? (
+                    <AnimationPreview animation={animation} size="gallery" style={{ opacity: 1 }} offColor="black" />
+                ) : (
+                    <Frame columns={previewColumns} size="gallery" offColor="black" style={{ opacity: 0.5 }} onClick={() => setPlaying(true)} />
+                )}
+            </Box>
+
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1.5, width: '100%' }}>
+                <Button
+                    size="small"
+                    variant="outlined"
+                    color="primary"
+                    onClick={handlePrimaryClick}
+                    startIcon={actionIcons[primaryAction]}
+                    disabled={buttonsDisabled}
+                >
+                    {getActionLabel(t, primaryAction)}
+                </Button>
+
+                {secondaryAction && handleSecondary ? (
+                    <Button
+                        size="small"
+                        variant="text"
+                        color="primary"
+                        onClick={handleSecondaryClick}
+                        startIcon={actionIcons[secondaryAction]}
+                    >
+                        {getActionLabel(t, secondaryAction)}
+                    </Button>
+                ) : null}
+            </Box>
+        </GalleryCardContent>
     )
 }
-
-export default AdminGallery

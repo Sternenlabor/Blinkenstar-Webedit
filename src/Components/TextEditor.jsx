@@ -2,8 +2,8 @@
 import React, { useState, useCallback, type Node, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import font from 'font'
+import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
-import Slider from '@mui/material/Slider'
 import TextField from '@mui/material/TextField'
 import Switch from '@mui/material/Switch'
 import Button from '@mui/material/Button'
@@ -11,15 +11,10 @@ import ShareIcon from '@mui/icons-material/Share'
 import { Typography } from '@mui/material'
 import type { Animation } from 'Reducer'
 import AnimationPreview from './AnimationPreview'
+import EditorPanel from './editor/EditorPanel'
+import EditorSliderRow from './editor/EditorSliderRow'
 
 const style = {
-    wrapper: {
-        display: 'flex',
-        flexDirection: 'column',
-        overflowX: 'auto',
-        overflowY: 'auto',
-        padding: 20
-    },
     textField: {
         flexShrink: 0,
         width: 256,
@@ -111,25 +106,19 @@ export default function TextEditor({ animation, onUpdate, onShare }: Props): Nod
     }, [])
 
     return (
-        <div style={style.wrapper}>
-            <Button
-                size="small"
-                variant="outlined"
-                color="primary"
-                onClick={() => onShare(animation)}
-                style={{ alignSelf: 'flex-end', marginTop: 10, marginBottom: -20, minHeight: 34 }}
-                startIcon={<ShareIcon />}
-            >
-                {t('textEditor.share', 'Share')}
-            </Button>
+        <EditorPanel>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1, mb: -1 }}>
+                <Button size="small" variant="outlined" color="primary" onClick={() => onShare(animation)} startIcon={<ShareIcon />}>
+                    {t('textEditor.share', 'Share')}
+                </Button>
+            </Box>
 
-            {/* always show preview; switch state is retained but not applied */}
             <AnimationPreview animation={animation} />
 
-            <Divider style={{ margin: '16px 0', background: 'transparent' }} />
+            <Divider sx={{ my: 2, background: 'transparent' }} />
 
             <TextField
-                style={style.textField}
+                sx={style.textField}
                 id="text"
                 label={t('textEditor.textPlaceholder')}
                 placeholder={t('textEditor.textPlaceholder')}
@@ -138,7 +127,7 @@ export default function TextEditor({ animation, onUpdate, onShare }: Props): Nod
             />
 
             <TextField
-                style={style.textField}
+                sx={style.textField}
                 id="name"
                 label={t('textEditor.name')}
                 placeholder={t('textEditor.name')}
@@ -146,33 +135,21 @@ export default function TextEditor({ animation, onUpdate, onShare }: Props): Nod
                 onChange={(e) => handleChange('name', e)}
             />
 
-            <div style={style.sliderContainer}>
-                <Typography style={style.sliderLabel}>{t('textEditor.speed')}</Typography>
-                <Slider style={style.slider} value={animation.speed} step={1} min={0} max={15} onChange={handleSpeedChange} />
-                <Typography>{animation.speed}</Typography>
-            </div>
+            <EditorSliderRow label={t('textEditor.speed')} max={15} min={0} onChange={handleSpeedChange} step={1} value={animation.speed} />
 
-            <div style={style.sliderContainer}>
-                <Typography style={style.sliderLabel}>{t('textEditor.delay')}</Typography>
-                <Slider style={style.slider} value={animation.delay} step={0.5} min={0} max={7.5} onChange={handleDelayChange} />
-                <Typography>{animation.delay}</Typography>
-            </div>
+            <EditorSliderRow label={t('textEditor.delay')} max={7.5} min={0} onChange={handleDelayChange} step={0.5} value={animation.delay} />
 
-            <div style={style.sliderContainer}>
-                <Typography style={style.sliderLabel}>{t('textEditor.repeat')}</Typography>
-                <Slider style={style.slider} value={animation.repeat} step={1} min={0} max={15} onChange={handleRepeatChange} />
-                <Typography>{animation.repeat}</Typography>
-            </div>
+            <EditorSliderRow label={t('textEditor.repeat')} max={15} min={0} onChange={handleRepeatChange} step={1} value={animation.repeat} />
 
-            <div style={style.sliderContainer}>
-                <Typography style={style.sliderLabel}>{t('textEditor.rtl')}</Typography>
+            <Box sx={style.sliderContainer}>
+                <Typography sx={style.sliderLabel}>{t('textEditor.rtl')}</Typography>
                 <Switch checked={Boolean(animation.direction)} onChange={handleDirectionChange} />
-            </div>
+            </Box>
 
-            <div style={style.sliderContainer}>
-                <Typography style={style.sliderLabel}>{t('textEditor.livePreview')}</Typography>
+            <Box sx={style.sliderContainer}>
+                <Typography sx={style.sliderLabel}>{t('textEditor.livePreview')}</Typography>
                 <Switch checked={livePreview} onChange={handlePreviewChange} />
-            </div>
-        </div>
+            </Box>
+        </EditorPanel>
     )
 }

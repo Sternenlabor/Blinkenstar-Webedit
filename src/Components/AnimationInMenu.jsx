@@ -1,33 +1,16 @@
 /* @flow */
 import React, { type Node } from 'react'
-import ListItem from '@mui/material/ListItem'
+import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
+import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
+import ListItemText from '@mui/material/ListItemText'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import AnimationPreview from './AnimationPreview'
-import { Typography } from '@mui/material'
+import type { Animation } from 'Reducer'
 
 const style = {
-    itemText: {
-        textOverflow: 'ellipsis',
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        lineHeight: 1.1
-    },
-    avatarWrapper: {
-        position: 'absolute',
-        top: 8,
-        left: 16
-    },
-    listItem: {
-        position: 'relative',
-        padding: '20px 16px 20px 72px', // Reduced right padding
-        color: 'buttontext'
-    },
-    listItemSelected: {
-        backgroundColor: '#e0e0e0',
-        position: 'relative',
-        padding: '20px 16px 20px 72px' // Reduced right padding
-    }
+    preview: { display: 'flex', marginRight: 16 }
 }
 
 type Props = {
@@ -45,21 +28,19 @@ function AnimationInMenu({ animation, selected, onRemove, onClick }: Props): Nod
 
     return (
         <ListItem
-            onClick={onClick}
-            style={selected ? style.listItemSelected : style.listItem}
+            disablePadding
             secondaryAction={
-                <IconButton
-                    onClick={handleRemove}
-                    edge="end" // Ensures proper spacing
-                >
+                <IconButton onClick={handleRemove} edge="end">
                     <DeleteForeverIcon />
                 </IconButton>
             }
         >
-            <div style={style.avatarWrapper}>
-                <AnimationPreview animation={animation} size="thumb" offColor="black" />
-            </div>
-            <Typography sx={style.itemText}>{animation.name || animation.text || '\u00A0'}</Typography>
+            <ListItemButton onClick={onClick} selected={selected} sx={{ py: 2, pr: 8 }}>
+                <Box style={style.preview}>
+                    <AnimationPreview animation={animation} size="thumb" offColor="black" />
+                </Box>
+                <ListItemText primary={animation.name || animation.text || '\u00A0'} primaryTypographyProps={{ noWrap: true, sx: { lineHeight: 1.1 } }} />
+            </ListItemButton>
         </ListItem>
     )
 }

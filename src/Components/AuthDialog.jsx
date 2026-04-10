@@ -1,5 +1,5 @@
 /* @flow */
-import React, { useState, useEffect, useRef, type Node } from 'react'
+import React, { useState, useEffect, useRef, useCallback, type Node } from 'react'
 import { useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Button, IconButton } from '@mui/material'
@@ -22,7 +22,6 @@ export default function AuthDialog({ isOpen, onClose }: Props): Node {
     const [password, setPassword] = useState<string>('')
     const [error, setError] = useState<string>('')
 
-    // Reset form when dialog opens
     useEffect(() => {
         if (isOpen) {
             setView('login')
@@ -32,7 +31,6 @@ export default function AuthDialog({ isOpen, onClose }: Props): Node {
         }
     }, [isOpen])
 
-    // Track mount status to avoid state updates after unmount
     useEffect(() => {
         mountedRef.current = true
         return () => {
@@ -40,34 +38,52 @@ export default function AuthDialog({ isOpen, onClose }: Props): Node {
         }
     }, [])
 
-    const handleLogin = async (e: SyntheticMouseEvent<>) => {
-        e.stopPropagation()
+    const setViewAndClearError = useCallback((nextView: 'login' | 'signup' | 'reset') => {
+        setView(nextView)
         setError('')
-        try {
-            const action = await dispatch(login(email, password))
-            if (action.error) {
-                const msg = action.payload?.message || action.payload?.error || t('auth_dialog.login_failed', 'Login failed')
-                setError(msg)
-            } else {
-                onClose()
+    }, [])
+
+    const setErrorIfMounted = useCallback((nextError: string) => {
+        if (mountedRef.current) {
+            setError(nextError)
+        }
+    }, [])
+
+    const runAuthRequest = useCallback(
+        async (request: () => Promise<any>, fallbackMessage: string): Promise<boolean> => {
+            setError('')
+
+            try {
+                const action = await request()
+                if (action?.error) {
+                    const message = action.payload?.message || action.payload?.error || fallbackMessage
+                    setErrorIfMounted(message)
+                    return false
+                }
+
+                return true
+            } catch (error) {
+                setErrorIfMounted(error instanceof Error ? error.message : fallbackMessage)
+                return false
             }
-        } catch (err) {
-            if (mountedRef.current) setError(err.message)
+        },
+        [setErrorIfMounted]
+    )
+
+    const handleLogin = async (e: SyntheticMouseEvent<>) => {
+        e.preventDefault()
+        setError('')
+
+        const didLogin = await runAuthRequest(() => dispatch(login(email, password)), t('auth_dialog.login_failed', 'Login failed'))
+        if (didLogin) {
+            onClose()
         }
     }
 
     const handleSignup = async () => {
-        setError('')
-        try {
-            const action = await dispatch(signup(email, password))
-            if (action.error) {
-                const msg = action.payload?.message || action.payload?.error || t('auth_dialog.signup_failed', 'Signup failed')
-                setError(msg)
-            } else {
-                onClose()
-            }
-        } catch (err) {
-            if (mountedRef.current) setError(err.message)
+        const didSignup = await runAuthRequest(() => dispatch(signup(email, password)), t('auth_dialog.signup_failed', 'Signup failed'))
+        if (didSignup) {
+            onClose()
         }
     }
 
@@ -85,8 +101,8 @@ export default function AuthDialog({ isOpen, onClose }: Props): Node {
             }
             alert(t('auth_dialog.resetlink_sent_notification'))
             onClose()
-        } catch (err) {
-            if (mountedRef.current) setError(err.message)
+        } catch (error) {
+            setErrorIfMounted(error instanceof Error ? error.message : t('auth_dialog.reset_failed', 'Password reset failed'))
         }
     }
 
@@ -150,11 +166,11 @@ export default function AuthDialog({ isOpen, onClose }: Props): Node {
                 {view === 'login' && (
                     <DialogContentText sx={{ fontSize: '0.8rem', mt: 2 }}>
                         {t('auth_dialog.account_missing')}{' '}
-                        <Button variant="text" size="small" onClick={() => setView('signup')} sx={{ textTransform: 'none', p: 0, ml: 1 }}>
+                        <Button variant="text" size="small" onClick={() => setViewAndClearError('signup')} sx={{ textTransform: 'none', p: 0, ml: 1 }}>
                             <strong>{t('auth_dialog.create_account')}</strong>
                         </Button>
                         <br />
-                        <Button variant="text" size="small" onClick={() => setView('reset')} sx={{ textTransform: 'none', p: 0, mt: 1 }}>
+                        <Button variant="text" size="small" onClick={() => setViewAndClearError('reset')} sx={{ textTransform: 'none', p: 0, mt: 1 }}>
                             {t('auth_dialog.forgot_pwd')}
                         </Button>
                     </DialogContentText>

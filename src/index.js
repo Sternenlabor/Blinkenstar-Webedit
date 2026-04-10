@@ -25,24 +25,9 @@ export const store = createStore(
     compose(applyMiddleware(reduxPromise), window.__REDUX_DEVTOOLS_EXTENSION__ ? window.__REDUX_DEVTOOLS_EXTENSION__() : (f) => f)
 )
 
-// Initialize app: check session then render
-const initializeApp = async () => {
-    try {
-        const res = await fetch(`${API_URL}/user.php`, { credentials: 'include' })
-        if (res.ok) {
-            const user = await res.json()
-            if (user?.uid) {
-                store.dispatch(loggedIn(user))
-                // Dispatch sync after loggedIn
-                const state = store.getState()
-                store.dispatch(syncLibrary(user.uid, state.animations))
-            }
-        }
-    } catch (err) {
-        console.warn('Could not check user session:', err)
-    }
+function renderApp(rootElement: HTMLElement) {
+    const root = ReactDOM.createRoot(rootElement)
 
-    const root = ReactDOM.createRoot(document.getElementById('app'))
     root.render(
         <Provider store={store}>
             <BrowserRouter>
@@ -62,4 +47,35 @@ const initializeApp = async () => {
     )
 }
 
-document.addEventListener('DOMContentLoaded', initializeApp)
+async function restoreSession(): Promise<void> {
+    try {
+        const res = await fetch(`${API_URL}/user.php`, { credentials: 'include' })
+        if (res.ok) {
+            const user = await res.json()
+            if (user?.uid) {
+                store.dispatch(loggedIn(user))
+            }
+        }
+    } catch (error) {
+        console.warn('Could not check user session:', error)
+    }
+}
+
+async function initializeApp(): Promise<void> {
+    const rootElement = document.getElementById('app')
+
+    if (!(rootElement instanceof HTMLElement)) {
+        throw new Error('App root element not found')
+    }
+
+    await restoreSession()
+    renderApp(rootElement)
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        void initializeApp()
+    })
+} else {
+    void initializeApp()
+}

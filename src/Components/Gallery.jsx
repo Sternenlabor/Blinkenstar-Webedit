@@ -1,46 +1,28 @@
 /* @flow */
 import React from 'react'
-import { Map } from 'immutable'
+import type { Animation } from 'Reducer'
 import GalleryItem from './GalleryItem'
-
-const style = {
-    gallery: {
-        display: 'flex',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'flex-start',
-        alignContent: 'flex-start',
-        height: '100%',
-        width: '100%'
-    }
-}
+import GalleryGrid from './gallery/GalleryGrid'
 
 type Props = {
-    gallery: Map<string, Animation>,
-    clickIcon: string,
+    gallery: Animation[],
+    clickIcon?: 'add' | 'remove',
     clickLabel: string,
-    onClick?: (Array<Animation>) => mixed
+    onClick?: (Animation) => mixed
 }
 
 function Gallery({ gallery, clickIcon, clickLabel, onClick }: Props): React.Node {
     return (
-        <div style={style.gallery}>
-            {gallery.valueSeq().map((animation) => (
-                <GalleryItem
-                    key={animation.id}
-                    animation={animation}
-                    size="gallery"
-                    clickIcon={clickIcon}
-                    clickLabel={clickLabel}
-                    onClick={onClick}
-                />
+        <GalleryGrid>
+            {gallery.map((animation) => (
+                <GalleryItem key={animation.id} animation={animation} size="gallery" clickIcon={clickIcon} clickLabel={clickLabel} onClick={onClick} />
             ))}
-        </div>
+        </GalleryGrid>
     )
 }
 
 Gallery.defaultProps = {
-    gallery: new Map()
+    gallery: []
 }
 
 export default Gallery

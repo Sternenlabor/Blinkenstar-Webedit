@@ -1,5 +1,5 @@
 /* @flow */
-import React, { useState, useEffect, type Node } from 'react'
+import React, { useState, type Node } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Snackbar, Alert, Typography } from '@mui/material'
 import { Link, Share, Close } from '@mui/icons-material'
@@ -13,15 +13,10 @@ export default function ShareWidget({ animation, close }: Props): Node {
     const { t } = useTranslation()
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false)
     const [snackbarMessage, setSnackbarMessage] = useState<string>('')
-    const [supportsSharing, setSupportsSharing] = useState<boolean>(false)
-
-    useEffect(() => {
-        setSupportsSharing(!!navigator.share)
-    }, [])
+    const supportsSharing = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
 
     if (!animation) return null
 
-    // Generate URL using URL API and current location
     const generateShareUrl = () => {
         const shareString = btoa(JSON.stringify(animation))
         const url = new URL(window.location.href)
@@ -51,8 +46,8 @@ export default function ShareWidget({ animation, close }: Props): Node {
                 text: t('share_dialog.share_text'),
                 url: url
             })
-        } catch (err) {
-            // Sharing was canceled
+        } catch (error) {
+            // Sharing was canceled.
         }
     }
 

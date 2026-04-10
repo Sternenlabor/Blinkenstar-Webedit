@@ -2,7 +2,6 @@
 import React, { useState, useCallback, type Node } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import App from './App'
 import TextEditor from './TextEditor'
 import PixelEditor from './PixelEditor'
 import ShareWidget from './ShareWidget'

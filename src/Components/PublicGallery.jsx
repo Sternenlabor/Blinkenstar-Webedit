@@ -3,12 +3,11 @@ import React, { useState, useEffect, useCallback, type Node } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import UUID from 'uuid-js'
 import { useTranslation } from 'react-i18next'
-import App from './App'
+import Box from '@mui/material/Box'
 import Gallery from './Gallery'
 import { addAnimation } from 'Actions/animations'
 import { loadGallery } from 'Actions/gallery'
 import type { Animation } from 'Reducer'
-import { Map } from 'immutable'
 import { Typography } from '@mui/material'
 
 const style = {
@@ -23,21 +22,23 @@ export default function PublicGallery(): Node {
     const gallery = useSelector((state) => state.gallery)
     const [loading, setLoading] = useState<boolean>(true)
 
-    // Load gallery on mount or when gallery is empty
     useEffect(() => {
+        let isActive = true
+
         if (gallery.size === 0) {
-            dispatch(loadGallery()).finally(() => setLoading(false))
+            Promise.resolve(dispatch(loadGallery())).finally(() => {
+                if (isActive) {
+                    setLoading(false)
+                }
+            })
         } else {
             setLoading(false)
         }
-    }, [dispatch, gallery.size])
 
-    // In case gallery fills after mount
-    useEffect(() => {
-        if (gallery.size > 0 && loading) {
-            setLoading(false)
+        return () => {
+            isActive = false
         }
-    }, [gallery.size, loading])
+    }, [dispatch, gallery.size])
 
     const copyToLibrary = useCallback(
         (animation: Animation) => {
@@ -52,25 +53,25 @@ export default function PublicGallery(): Node {
         [dispatch, uid]
     )
 
-    // Prepare items for display
-    const items = gallery
+    const items: Animation[] = gallery
         .valueSeq()
         .sortBy((anim) => anim.creationDate)
         .reverse()
+        .toArray()
 
     return (
-        <div style={style.canvas}>
+        <Box sx={style.canvas}>
             {loading ? (
-                <div style={style.loading}>
+                <Box sx={style.loading}>
                     <Typography variant="h5">{t('gallery.loading', 'Loading...')}</Typography>
-                </div>
-            ) : items.size === 0 ? (
-                <div style={style.loading}>
+                </Box>
+            ) : items.length === 0 ? (
+                <Box sx={style.loading}>
                     <Typography variant="h5">{t('gallery.no_animations', 'No animations available yet')}</Typography>
-                </div>
+                </Box>
             ) : (
                 <Gallery gallery={items} clickLabel={t('gallery.copy_animation', 'Copy to library')} onClick={copyToLibrary} />
             )}
-        </div>
+        </Box>
     )
 }

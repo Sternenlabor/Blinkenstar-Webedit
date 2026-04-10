@@ -71,9 +71,14 @@
     },
     "gallery": {
         "copy_animation": "Copy",
-        "loading": "Loading gallery…"
+        "loading": "Loading gallery…",
+        "no_animations": "No animations available yet"
     },
     "admin_gallery": {
+        "review_title": "User Animations for Review",
+        "public_title": "Public Gallery",
+        "publish": "Publish",
+        "archive": "Archive",
         "unpublish": "Remove"
     }
 }

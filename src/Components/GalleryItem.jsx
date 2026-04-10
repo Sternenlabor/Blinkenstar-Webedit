@@ -1,29 +1,14 @@
 /* @flow */
 import React, { useState, type Node, useCallback } from 'react'
-import Frame from './Frame'
-import AnimationPreview from './AnimationPreview'
-import { getFrameColumns } from '../utils'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Tooltip from '@mui/material/Tooltip'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
-
-const style = {
-    galleryItem: { alignItems: 'center', margin: '15px', position: 'relative' },
-    title: {
-        fontFamily: 'sans-serif',
-        fontSize: '12px',
-        textOverflow: 'ellipsis',
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        marginBottom: '4px',
-        width: '100px'
-    },
-    frame: {
-        /*boxShadow: '7px 6px 2px lightgrey',*/
-    },
-    actionButton: { marginTop: '10px', width: '100%' }
-}
+import Frame from './Frame'
+import AnimationPreview from './AnimationPreview'
+import type { Animation } from 'Reducer'
+import GalleryCardContent from './gallery/GalleryCardContent'
+import { getFrameColumns } from '../utils'
 
 const actionIcons = {
     add: <AddIcon />,
@@ -53,41 +38,19 @@ function GalleryItem({ animation, size = 'gallery', offColor = 'black', clickIco
     const frameCols = getFrameColumns(animation, animation.animation.currentFrame)
 
     return (
-        <div style={style.galleryItem} onMouseEnter={enter} onMouseLeave={leave}>
-            <div style={style.title} title={animation.name || ''}>
-                {animation.name ? <b>{animation.name}</b> : <em>Untitled</em>}
-            </div>
+        <GalleryCardContent title={animation.name || ''}>
+            <Box onMouseEnter={enter} onMouseLeave={leave}>
+                {!playing ? (
+                    <Frame columns={frameCols} onClick={() => setPlaying(true)} size={size} offColor={offColor} style={{ opacity: 0.5 }} />
+                ) : (
+                    <AnimationPreview animation={animation} key={animation.id} size={size} offColor={offColor} onClick={handleClick} />
+                )}
+            </Box>
 
-            {!playing ? (
-                <Frame
-                    columns={frameCols}
-                    onClick={() => setPlaying(true)}
-                    size={size}
-                    offColor={offColor}
-                    style={{ ...style.frame, opacity: 0.5 }}
-                />
-            ) : (
-                <AnimationPreview
-                    animation={animation}
-                    key={animation.id}
-                    size={size}
-                    style={style.frame}
-                    offColor={offColor}
-                    onClick={handleClick}
-                />
-            )}
-
-            <Button
-                size="small"
-                variant="outlined"
-                color="primary"
-                onClick={handleClick}
-                style={style.actionButton}
-                startIcon={actionIcons[clickIcon]}
-            >
+            <Button size="small" variant="outlined" color="primary" onClick={handleClick} sx={{ mt: 1.25, width: '100%' }} startIcon={actionIcons[clickIcon]}>
                 {clickLabel}
             </Button>
-        </div>
+        </GalleryCardContent>
     )
 }
 

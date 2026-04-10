@@ -1,5 +1,6 @@
 // @flow
 import createAudioContext from 'ios-safe-audio-context'
+import { fill } from 'lodash'
 import Modem from './modem'
 import ModemLegacy from './modemLegacy'
 import type { Animation } from 'Reducer'
@@ -127,7 +128,7 @@ function Float32Concat(first, second) {
 startSilence()
 function startSilence() {
     let audioSilence: AudioContext = createAudioContext(DEFAULT_SAMPLE_RATE)
-    let emptyArray = _.fill(new Array(DEFAULT_SAMPLE_RATE), 0)
+    let emptyArray = fill(new Array(DEFAULT_SAMPLE_RATE), 0)
     let buffer = audioSilence.createBuffer(1, emptyArray.length, DEFAULT_SAMPLE_RATE)
     buffer.getChannelData(0).set(emptyArray)
     let source = audioSilence.createBufferSource()
