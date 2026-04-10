@@ -23,3 +23,7 @@ test('cleans the output directory before emitting a new build', () => {
 test('build script removes stale public output before webpack runs', () => {
     assert.match(pkg.scripts.build, /^node scripts\/clean-public\.js && /)
 })
+
+test('start script does not use removed webpack-dev-server inline mode', () => {
+    assert.doesNotMatch(pkg.scripts.start, /(^|\s)--inline(\s|$)/)
+})
