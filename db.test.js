@@ -7,10 +7,12 @@ const { execFileSync } = require('node:child_process')
 function loadDbModule() {
     const outDir = fs.mkdtempSync(path.join(__dirname, '.tmp-blinken-db-'))
     const outFile = path.join(outDir, 'db.cjs')
+    const helperFile = path.join(outDir, 'animationNormalization.js')
 
     execFileSync('npx', ['babel', 'src/db.ts', '--out-file', outFile, '--presets', '@babel/preset-env,@babel/preset-typescript'], {
         cwd: __dirname
     })
+    fs.copyFileSync(path.join(__dirname, 'src/animationNormalization.js'), helperFile)
 
     const moduleExports = require(outFile)
     fs.rmSync(outDir, { recursive: true, force: true })

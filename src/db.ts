@@ -1,6 +1,7 @@
 /* @flow */
 import { List, Map } from 'immutable'
 import type { Animation } from 'Reducer'
+import { normalizeAnimation } from './animationNormalization'
 
 /**
  * Base URL of your LAMP API
@@ -13,9 +14,9 @@ export const API_URL = process.env.API_URL || 'http://localhost:8000'
  */
 export function mapAnimationToLocal(doc: any): Animation {
     // Safely get columns with fallback to empty array
-    const columns = doc.columns || [];
+    const columns = Array.isArray(doc.columns) ? doc.columns : []
     // Calculate frames only if type is pixel and columns exist
-    const frames = doc.type === 'pixel' ? columns.length / 8 : 0;
+    const frames = doc.type === 'pixel' ? columns.length / 8 : 0
 
     const result: any = {
         id: doc.id,
@@ -38,7 +39,7 @@ export function mapAnimationToLocal(doc: any): Animation {
     if (doc.creationDate) result.creationDate = doc.creationDate
     if (doc.reviewedAt) result.reviewedAt = doc.reviewedAt
     if (doc.modifiedAt) result.modifiedAt = doc.modifiedAt
-    return result
+    return normalizeAnimation(result)
 }
 
 /**

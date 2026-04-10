@@ -5,6 +5,7 @@ import { range } from 'lodash'
 import UUID from 'uuid-js'
 import type { Animation } from 'Reducer'
 import { saveAnimationsToRemote, removeAnimationRemote } from '../db'
+import { normalizeAnimation } from '../animationNormalization'
 
 const EMPTY_DATA: List<number> = List(range(8).map(() => 0x00))
 
@@ -31,7 +32,7 @@ export const loadAnimations = createAction('UPSERT_ANIMATIONS', async () => {
             const item = localStorage.getItem(key)
             if (item) {
                 try {
-                    const anim: Animation = JSON.parse(item)
+                    const anim: Animation = normalizeAnimation(JSON.parse(item))
                     animationsMap = animationsMap.set(anim.id, anim)
                 } catch (e) {
                     console.warn('Failed to parse animation from storage', key, e)
@@ -44,18 +45,19 @@ export const loadAnimations = createAction('UPSERT_ANIMATIONS', async () => {
 
 /** Add a new animation (and persist to PHP if logged in) */
 export const addAnimation = createAction('ADD_ANIMATION', async (animation: Animation, uid: string) => {
+    const normalized = normalizeAnimation(animation)
     // Persist to localStorage with key prefix "animation:"
-    localStorage.setItem(`animation:${animation.id}`, JSON.stringify(animation))
+    localStorage.setItem(`animation:${normalized.id}`, JSON.stringify(normalized))
     // If user is logged in (has uid), also push to backend
     if (uid) {
-        await saveAnimationsToRemote(uid, Map<string, Animation>([[animation.id, animation]]))
+        await saveAnimationsToRemote(uid, Map<string, Animation>([[normalized.id, normalized]]))
     }
-    return animation
+    return normalized
 })
 
 /** Update an existing animation (and persist) */
 export const updateAnimation = createAction('UPDATE_ANIMATION', async (animation: Animation, uid: string) => {
-    const updated = { ...animation, modifiedAt: Date.now() }
+    const updated = normalizeAnimation({ ...animation, modifiedAt: Date.now() })
     localStorage.setItem(`animation:${updated.id}`, JSON.stringify(updated))
     if (uid) {
         await saveAnimationsToRemote(uid, Map<string, Animation>([[updated.id, updated]]))

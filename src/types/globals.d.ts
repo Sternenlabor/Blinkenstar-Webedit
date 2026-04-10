@@ -42,6 +42,7 @@ declare global {
         intervalHandler?: ReturnType<typeof setInterval>
         lastArray?: Float32Array
         playTone?: (array?: Float32Array) => void
+        silenceStarted?: boolean
         startTest?: (interval?: number) => void
         stopTest?: () => void
     }

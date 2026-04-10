@@ -1,5 +1,7 @@
 const test = require('node:test')
 const assert = require('node:assert/strict')
+const fs = require('node:fs')
+const path = require('node:path')
 
 const config = require('./webpack.config.js')
 const pkg = require('./package.json')
@@ -42,4 +44,10 @@ test('webpack uses asset modules instead of legacy file and url loaders', () => 
     assert.ok(!rules.some((rule) => rule.loader === 'file-loader'))
     assert.ok(!rules.some((rule) => rule.loader === 'url-loader'))
     assert.ok(!rules.some((rule) => rule.loader === 'inline-css-loader'))
+})
+
+test('build emits a root favicon for direct browser requests', () => {
+    const faviconPath = path.join(__dirname, 'public', 'favicon.ico')
+
+    assert.ok(fs.existsSync(faviconPath), `expected ${faviconPath} to exist after build`)
 })

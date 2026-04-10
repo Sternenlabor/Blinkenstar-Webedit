@@ -1,5 +1,6 @@
 import { handleActions } from 'redux-actions'
 import { Map, List } from 'immutable'
+import { normalizeAnimation } from '../animationNormalization'
 
 export type Animation = {
     id: string,
@@ -55,8 +56,14 @@ const initialAnimations = Object.keys(localStorage).reduce<Map<string, Animation
     }
     try {
         const tmp = JSON.parse(localStorage[key])
-            tmp.animation.data = List(tmp.animation.data)
-            return animations.set(key.slice(10, key.length), tmp)
+            const normalized = normalizeAnimation({
+                ...tmp,
+                animation: {
+                    ...(tmp.animation || {}),
+                    data: List(tmp.animation?.data || [])
+                }
+            })
+            return animations.set(key.slice(10, key.length), normalized)
         } catch (e) {
             return animations
         }

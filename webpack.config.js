@@ -45,7 +45,8 @@ const plugins = [
         devMode: 'webapp', // same in dev
         cache: true, // speed up rebuilds
         inject: true, // auto-inject <link> tags into HtmlWebpackPlugin
-        prefix: 'icons/[fullhash]/', // optional sub-folder
+        // Emit a root /favicon.ico so browsers and crawlers don't depend on a nested hashed path.
+        prefix: '',
         publicPath: '/'
     }),
     new CopyWebpackPlugin({

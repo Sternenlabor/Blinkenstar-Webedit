@@ -2,12 +2,13 @@ import createAudioContext from 'ios-safe-audio-context'
 import { fill } from 'lodash'
 import Modem from './modem'
 import ModemLegacy from './modemLegacy'
+import { createFlashAudioContexts } from './flashAudioContexts'
 import type { Animation } from 'Reducer'
 import { Map } from 'immutable';
 const { DEFAULT_SAMPLE_RATE, getPlaybackDurationMs, getTransferProgress } = require('./transferProgress')
 
 var transferActive = 0
-var audioCtx: AudioContext = createAudioContext(DEFAULT_SAMPLE_RATE)
+const audioContexts = createFlashAudioContexts(createAudioContext, DEFAULT_SAMPLE_RATE)
 
 type TransferCallbacks = {
     onProgress?: ((progress: number) => unknown),
@@ -35,6 +36,7 @@ export default function transfer(animations: Map<string, Animation>, callbacks: 
         let modem2 = new Modem(animations)
         let data2 = modem2.generateAudio()
 
+        startSilence()
         playTone(Float32Concat(data2, data), callbacks)
         return true
     } catch (error) {
@@ -54,6 +56,11 @@ window.playTone = function (array?: Float32Array) {
 function playTone(array: Float32Array | undefined = window.lastArray, callbacks: TransferCallbacks = {}) {
     array = array || window.lastArray
     window.lastArray = array
+    const audioCtx: AudioContext = audioContexts.getTransferAudioContext()
+
+    if (audioCtx.state === 'suspended') {
+        void audioCtx.resume()
+    }
 
     var totalDurationMs = getPlaybackDurationMs(array.length, DEFAULT_SAMPLE_RATE)
     var startedAt = Date.now()
@@ -122,11 +129,17 @@ function Float32Concat(first, second) {
     return result
 }
 
-//starting looped silence (tone with values "0") in the background
-//this improves the reliability of data transmission on some hardware platforms (stabilizing sound gain ?!)
-startSilence()
 function startSilence() {
-    let audioSilence: AudioContext = createAudioContext(DEFAULT_SAMPLE_RATE)
+    let audioSilence: AudioContext = audioContexts.getSilenceAudioContext()
+
+    if (audioSilence.state === 'suspended') {
+        void audioSilence.resume()
+    }
+
+    if (window.silenceStarted) {
+        return
+    }
+
     let emptyArray = fill(new Array(DEFAULT_SAMPLE_RATE), 0)
     let buffer = audioSilence.createBuffer(1, emptyArray.length, DEFAULT_SAMPLE_RATE)
     buffer.getChannelData(0).set(emptyArray)
@@ -135,4 +148,5 @@ function startSilence() {
     source.buffer = buffer
     source.loop = true
     source.start(0)
+    window.silenceStarted = true
 }
