@@ -1,4 +1,3 @@
-/* @flow */
 import React, { useState, useEffect, useCallback, Node } from 'react';
 import { useSelector, useDispatch } from 'react-redux'
 import UUID from 'uuid-js'

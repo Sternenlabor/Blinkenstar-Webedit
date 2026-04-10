@@ -1,4 +1,3 @@
-// @flow
 /* eslint no-bitwise: 0 */
 
 /* new modem function,

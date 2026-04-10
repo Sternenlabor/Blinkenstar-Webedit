@@ -1,4 +1,3 @@
-/* @flow */
 import React, { useState, useCallback, Node, ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import font from 'font'

@@ -1,4 +1,3 @@
-/* @flow */
 const { List } = require('immutable')
 
 const DEFAULT_SPEED = 13

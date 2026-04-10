@@ -1,4 +1,3 @@
-// @flow
 /* eslint no-bitwise: 0 */
 import _ from 'lodash'
 import { List, Map } from 'immutable'

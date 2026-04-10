@@ -1,4 +1,3 @@
-/* @flow */
 import { createAction } from 'redux-actions'
 import { Map } from 'immutable'
 import { API_URL, fetchRemoteAnimations, saveAnimationsToRemote } from '../db'

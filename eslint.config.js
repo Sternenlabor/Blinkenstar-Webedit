@@ -2,9 +2,6 @@ const babelParser = require('@babel/eslint-parser')
 
 module.exports = [
     {
-        ignores: ['flow-typed/**']
-    },
-    {
         files: ['src/**/*.{js,jsx,ts,tsx}'],
         languageOptions: {
             parser: babelParser,

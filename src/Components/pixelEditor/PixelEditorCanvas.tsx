@@ -1,4 +1,3 @@
-/* @flow */
 import React, { Node } from 'react';
 import { List } from 'immutable';
 import type { Animation } from 'Reducer'

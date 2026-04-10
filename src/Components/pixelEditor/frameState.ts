@@ -1,4 +1,3 @@
-/* @flow */
 import { List } from 'immutable'
 import { range } from 'lodash'
 import { MAX_ANIMATION_FRAMES } from '../../variables'

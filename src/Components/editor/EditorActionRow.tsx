@@ -1,4 +1,3 @@
-/* @flow */
 import React, { Node } from 'react'
 import Stack from '@mui/material/Stack'
 

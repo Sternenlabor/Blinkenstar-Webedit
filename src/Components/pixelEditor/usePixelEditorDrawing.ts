@@ -1,4 +1,3 @@
-/* @flow */
 import { useCallback, useState } from 'react'
 import type { Animation } from 'Reducer'
 import { getPixelState, setPixelState } from './frameState'

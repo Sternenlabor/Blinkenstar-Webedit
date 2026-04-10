@@ -1,4 +1,3 @@
-/* @flow */
 import React, { useState, Node } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Snackbar, Alert, Typography } from '@mui/material'

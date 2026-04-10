@@ -1,4 +1,3 @@
-/* @flow */
 import { createAction } from 'redux-actions'
 import { List, Map } from 'immutable'
 import { range } from 'lodash'

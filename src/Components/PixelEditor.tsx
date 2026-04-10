@@ -1,4 +1,3 @@
-/* @flow */
 import React, { useState, useCallback, Node } from 'react'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'

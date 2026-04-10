@@ -1,4 +1,3 @@
-/* @flow */
 import { createAction } from 'redux-actions'
 import UUID from 'uuid-js'
 import type { Animation } from 'Reducer'

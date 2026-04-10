@@ -1,4 +1,3 @@
-/* @flow */
 import { useCallback, useState } from 'react'
 import { Map } from 'immutable';
 import type { Animation } from 'Reducer'

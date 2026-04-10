@@ -1,4 +1,3 @@
-/* @flow */
 import React, { Node } from 'react'
 import { useTranslation } from 'react-i18next'
 import Button from '@mui/material/Button'

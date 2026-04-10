@@ -2,19 +2,19 @@
 
 ## Project Overview
 - This repository is the `webedit-react` web editor for Blinkenstar.
-- The frontend is a React + Redux + Flow application bundled with webpack.
+- The frontend is a React + Redux + TypeScript application bundled with webpack.
 - Frontend source lives in `src/`, with the main UI split across `src/Components/`, `src/Actions/`, `src/Reducer/`, and `src/Services/`.
 - The REST backend for local/dev deployment lives in `src/api/` and `src/api/includes/`.
 - Browser assets are built into `public/`.
 
 ## Key Files
-- `src/index.js`
-- `src/Components/App.jsx`
-- `src/Components/Webedit.jsx`
-- `src/Components/RightMenu.jsx`
-- `src/Reducer/index.js`
-- `src/Services/flash.js`
-- `src/Services/modem.js`
+- `src/index.tsx`
+- `src/Components/App.tsx`
+- `src/Components/Webedit.tsx`
+- `src/Components/RightMenu.tsx`
+- `src/Reducer/index.ts`
+- `src/Services/flash.ts`
+- `src/Services/modem.ts`
 - `src/i18n.js`
 - `src/i18n/en.json`
 - `src/i18n/de.json`
@@ -37,8 +37,8 @@
 - Follow `.prettierrc.json`: 4-space indent, single quotes, no semicolons, no trailing commas, `printWidth` 140.
 - Keep the existing folder split: UI in `src/Components`, state changes in `src/Actions` and `src/Reducer`, audio/data-transfer logic in `src/Services`, translations in `src/i18n`.
 - Preserve the repo's import alias style such as `Components/...`, `Services/...`, `Actions/...`, and `Reducer`.
-- Keep Flow annotations in Flow-checked files and update types when behavior changes. New Flow-checked source files should start with `/* @flow */`.
-- Match the repo's current file naming: React components use `.jsx`; non-component modules generally use `.js`.
+- Keep TypeScript types current when behavior changes.
+- Match the repo's current file naming: React components use `.tsx`; non-component modules generally use `.ts` unless there is a clear reason to keep `.js`.
 - Keep files reasonably small. If a component or service grows hard to follow, split it before adding more behavior.
 - Add concise inline comments only where behavior, protocol details, or cross-file coupling would otherwise be unclear.
 - Avoid unrelated refactors while working in timing-sensitive transfer/audio code or backend API code.

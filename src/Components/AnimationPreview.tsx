@@ -1,4 +1,3 @@
-/* @flow */
 import React, { useState, useEffect, useRef, Node } from 'react';
 import { numFrames, lastFrameIndex, getFrameColumns } from '../utils'
 import Frame from './Frame'

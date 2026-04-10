@@ -1,4 +1,3 @@
-/* @flow */
 import React, { useCallback, useEffect, useRef, Node } from 'react';
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'

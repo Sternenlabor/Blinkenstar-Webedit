@@ -1,4 +1,3 @@
-/* @flow */
 
 export type AppView = "webedit" | "gallery" | "admingallery";
 

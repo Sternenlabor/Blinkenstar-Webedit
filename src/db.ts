@@ -1,4 +1,3 @@
-/* @flow */
 import { List, Map } from 'immutable'
 import type { Animation } from 'Reducer'
 import { normalizeAnimation } from './animationNormalization'

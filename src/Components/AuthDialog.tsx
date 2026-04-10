@@ -1,4 +1,3 @@
-/* @flow */
 import React, { useState, useEffect, useRef, useCallback, Node } from 'react';
 import { useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'

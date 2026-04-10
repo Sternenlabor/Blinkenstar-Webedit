@@ -1,4 +1,3 @@
-/* @flow */
 import { Map } from 'immutable';
 import type { Animation } from 'Reducer'
 import { INITIAL_ANIMATION_TEXT } from '../../variables'
