@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "lib": ["DOM", "DOM.Iterable", "ES2022"],
+        "jsx": "react-jsx",
+        "baseUrl": "src",
+        "paths": {
+            "Actions/*": ["Actions/*"],
+            "Components/*": ["Components/*"],
+            "Reducer": ["Reducer"],
+            "Services/*": ["Services/*"],
+            "font": ["font"]
+        },
+        "allowJs": true,
+        "checkJs": false,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "strict": false,
+        "ignoreDeprecations": "6.0",
+        "noEmit": true,
+        "types": ["node"]
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "public", "src/api"]
+}

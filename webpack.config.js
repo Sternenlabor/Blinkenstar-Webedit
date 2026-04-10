@@ -61,13 +61,13 @@ module.exports = {
     mode: nodeEnv,
     context: __dirname,
     resolve: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        extensions: ['.ts', '.tsx', '.js', '.jsx'],
         // allow imports without a '.js' extension
         fullySpecified: false,
         modules: [path.resolve('src'), 'node_modules'],
         alias: {}
     },
-    entry: ['core-js/stable', './src/index.js'],
+    entry: ['core-js/stable', './src/index.tsx'],
     output: {
         path: path.resolve('public'),
         filename: 'app-[fullhash].js',
@@ -80,13 +80,13 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.m?js$/,
+                test: /\.m?[jt]s$/,
                 resolve: {
                     fullySpecified: false
                 }
             },
             {
-                test: /\.jsx?$/,
+                test: /\.[jt]sx?$/,
                 exclude: /(node_modules|primusClient)/,
                 loader: 'babel-loader',
                 options: { cacheDirectory: true }

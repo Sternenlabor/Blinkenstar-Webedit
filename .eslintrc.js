@@ -8,8 +8,12 @@ module.exports = {
     parser: '@babel/eslint-parser',
     parserOptions: {
         requireConfigFile: false,
+        sourceType: 'module',
+        ecmaFeatures: {
+            jsx: true
+        },
         babelOptions: {
-            presets: ['@babel/preset-react', '@babel/preset-flow']
+            presets: ['@babel/preset-react', '@babel/preset-typescript']
         }
     },
     globals: {
