@@ -36,7 +36,65 @@ jobs:
             - name: Build app
               run: yarn build
 
-            - name: Deploy public/ to server root
+            - name: Deploy public/ to server root (attempt 1)
+              id: deploy_ftp_1
+              continue-on-error: true
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+              with:
+                  server: ${{ secrets.FTP_SERVER }}
+                  port: ${{ secrets.FTP_PORT }}
+                  username: ${{ secrets.FTP_USERNAME }}
+                  password: ${{ secrets.FTP_PASSWORD }}
+                  protocol: ftp
+                  timeout: 60000
+                  log-level: verbose
+                  local-dir: ./public/
+                  server-dir: ${{ secrets.FTP_SERVER_DIR }}
+                  exclude: |
+                      **/.DS_Store
+                      **/.git*
+                      **/.github/**
+                      **/.env
+                      **/.env.*
+                      **/*.env
+                      **/*.env.*
+                  state-name: .ftp-deploy-public-state.json
+
+            - name: Wait before FTP retry
+              if: steps.deploy_ftp_1.outcome == 'failure'
+              run: sleep 30
+
+            - name: Deploy public/ to server root (attempt 2)
+              id: deploy_ftp_2
+              if: steps.deploy_ftp_1.outcome == 'failure'
+              continue-on-error: true
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+              with:
+                  server: ${{ secrets.FTP_SERVER }}
+                  port: ${{ secrets.FTP_PORT }}
+                  username: ${{ secrets.FTP_USERNAME }}
+                  password: ${{ secrets.FTP_PASSWORD }}
+                  protocol: ftp
+                  timeout: 60000
+                  log-level: verbose
+                  local-dir: ./public/
+                  server-dir: ${{ secrets.FTP_SERVER_DIR }}
+                  exclude: |
+                      **/.DS_Store
+                      **/.git*
+                      **/.github/**
+                      **/.env
+                      **/.env.*
+                      **/*.env
+                      **/*.env.*
+                  state-name: .ftp-deploy-public-state.json
+
+            - name: Wait before final FTP retry
+              if: steps.deploy_ftp_2.outcome == 'failure'
+              run: sleep 60
+
+            - name: Deploy public/ to server root (attempt 3)
+              if: steps.deploy_ftp_2.outcome == 'failure'
               uses: SamKirkland/FTP-Deploy-Action@v4.3.5
               with:
                   server: ${{ secrets.FTP_SERVER }}
