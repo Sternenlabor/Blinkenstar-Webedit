@@ -26,6 +26,15 @@ test('build script removes stale public output before webpack runs', () => {
     assert.match(pkg.scripts.build, /^node scripts\/clean-public\.js && /)
 })
 
+test('FTP deploy never overwrites the server API config', () => {
+    const workflow = fs.readFileSync(path.join(__dirname, '.github', 'workflows', 'deploy-ftp.yml'), 'utf8')
+    const deployAttempts = workflow.match(/uses: SamKirkland\/FTP-Deploy-Action@v4\.3\.5/g) || []
+    const protectedConfigExcludes = workflow.match(/^\s+\*\*\/api\/includes\/config\.php$/gm) || []
+
+    assert.ok(deployAttempts.length > 0, 'expected at least one FTP deploy attempt')
+    assert.equal(protectedConfigExcludes.length, deployAttempts.length)
+})
+
 test('start script does not use removed webpack-dev-server inline mode', () => {
     assert.doesNotMatch(pkg.scripts.start, /(^|\s)--inline(\s|$)/)
 })

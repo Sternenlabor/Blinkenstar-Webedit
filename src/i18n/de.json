@@ -36,7 +36,8 @@
         "admin_gallery": "Admin Galerie",
         "clear_library": "Alle Löschen",
         "login": "Login",
-        "logout": "Logout"
+        "logout": "Logout",
+        "github": "GitHub-Repository"
     },
     "auth_dialog": {
         "title": "Einloggen oder Anmelden",

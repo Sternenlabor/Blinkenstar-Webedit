@@ -4,12 +4,16 @@ import { useTranslation } from 'react-i18next'
 import { range } from 'lodash'
 import Stack from '@mui/material/Stack'
 import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
 import SendIcon from '@mui/icons-material/Send'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
+import GitHubIcon from '@mui/icons-material/GitHub'
 import AuthDialog from './AuthDialog'
 import TransferDialog from './rightMenu/TransferDialog'
 import useTransferDialog from './rightMenu/useTransferDialog'
 import { logout } from 'Actions/auth'
+
+const githubRepositoryUrl = 'https://github.com/Sternenlabor/Blinkenstar'
 
 const style = {
     button: {
@@ -56,6 +60,20 @@ export default function RightMenu(): Node {
                     {t('menu.login')}
                 </Button>
             )}
+
+            <IconButton
+                component="a"
+                href={githubRepositoryUrl}
+                target="_blank"
+                rel="noreferrer"
+                color="inherit"
+                size="small"
+                aria-label={t('menu.github')}
+                title={t('menu.github')}
+                sx={{ mx: 0.5 }}
+            >
+                <GitHubIcon />
+            </IconButton>
 
             <TransferDialog
                 cancelLabel={t('transfer_dialog.cancel')}

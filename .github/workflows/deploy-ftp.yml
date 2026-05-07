@@ -58,6 +58,7 @@ jobs:
                       **/.env.*
                       **/*.env
                       **/*.env.*
+                      **/api/includes/config.php
                   state-name: .ftp-deploy-public-state.json
 
             - name: Wait before FTP retry
@@ -87,6 +88,7 @@ jobs:
                       **/.env.*
                       **/*.env
                       **/*.env.*
+                      **/api/includes/config.php
                   state-name: .ftp-deploy-public-state.json
 
             - name: Wait before final FTP retry
@@ -114,4 +116,5 @@ jobs:
                       **/.env.*
                       **/*.env
                       **/*.env.*
+                      **/api/includes/config.php
                   state-name: .ftp-deploy-public-state.json
