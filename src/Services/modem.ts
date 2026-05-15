@@ -16,6 +16,7 @@
 import _ from 'lodash'
 import { List, Map } from 'immutable'
 import type { Animation } from 'Reducer'
+import { sortAnimationsByOrder } from '../animationOrder'
 
 const STARTCODE1 = 0xa5
 const STARTCODE2 = 0x5a
@@ -111,8 +112,7 @@ export default class Modem {
 
     setData(animations: Map<string, Animation>) {
         const data = _.flatten(
-            animations
-                .toList()
+            sortAnimationsByOrder(animations.toList().toArray())
                 .map((animation) => {
                     let d = [PATTERNCODE1, PATTERNCODE2]
                     console.log(animation)
@@ -138,7 +138,6 @@ export default class Modem {
                     }
                     return d
                 })
-                .toArray()
         )
 
         // build frames using new transfer protocol, for details see blinkenstar-firmware

@@ -2,6 +2,7 @@
 import _ from 'lodash'
 import { List, Map } from 'immutable'
 import type { Animation } from 'Reducer'
+import { sortAnimationsByOrder } from '../animationOrder'
 
 const STARTCODE = 0x99
 const PATTERNCODE = 0xa9
@@ -66,8 +67,7 @@ export default class ModemLegacy {
 
     setData(animations: Map<string, Animation>) {
         const data = _.flatten(
-            animations
-                .toList()
+            sortAnimationsByOrder(animations.toList().toArray())
                 .map((animation) => {
                     let d = [PATTERNCODE, PATTERNCODE]
                     console.log(animation)
@@ -93,7 +93,6 @@ export default class ModemLegacy {
                     }
                     return d
                 })
-                .toArray()
         )
         this.data = [STARTCODE, STARTCODE, ...data, ENDCODE, ENDCODE]
         console.log(this.data)

@@ -5,7 +5,7 @@ import UUID from 'uuid-js'
 import type { Animation } from 'Reducer'
 import { saveAnimationsToRemote, removeAnimationRemote } from '../db'
 import { normalizeAnimation } from '../animationNormalization'
-import { applyAnimationSortOrder } from 'Components/menu/animationOrder'
+import { applyAnimationSortOrder } from '../animationOrder'
 
 const EMPTY_DATA: List<number> = List(range(8).map(() => 0x00))
 

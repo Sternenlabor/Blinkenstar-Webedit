@@ -8,7 +8,7 @@ function loadAnimationOrderModule() {
     const outDir = fs.mkdtempSync(path.join(__dirname, '.tmp-blinken-menu-order-'))
     const outFile = path.join(outDir, 'animationOrder.cjs')
 
-    execFileSync('npx', ['babel', 'src/Components/menu/animationOrder.ts', '--out-file', outFile, '--presets', '@babel/preset-env,@babel/preset-typescript'], {
+    execFileSync('npx', ['babel', 'src/animationOrder.ts', '--out-file', outFile, '--presets', '@babel/preset-env,@babel/preset-typescript'], {
         cwd: __dirname
     })
 
@@ -18,19 +18,19 @@ function loadAnimationOrderModule() {
     return moduleExports
 }
 
-test('sortAnimationsForMenu preserves existing order until explicit sortOrder values exist', () => {
-    const { sortAnimationsForMenu } = loadAnimationOrderModule()
+test('sortAnimationsByOrder preserves existing order until explicit sortOrder values exist', () => {
+    const { sortAnimationsByOrder } = loadAnimationOrderModule()
     const animations = [
         { id: 'ball', name: 'Ball' },
         { id: 'sinus', name: 'Sinus' },
         { id: 'andre', name: 'Andre' }
     ]
 
-    assert.deepEqual(sortAnimationsForMenu(animations).map((animation) => animation.id), ['ball', 'sinus', 'andre'])
+    assert.deepEqual(sortAnimationsByOrder(animations).map((animation) => animation.id), ['ball', 'sinus', 'andre'])
 })
 
-test('sortAnimationsForMenu uses sortOrder and keeps unsorted animations stable behind sorted ones', () => {
-    const { sortAnimationsForMenu } = loadAnimationOrderModule()
+test('sortAnimationsByOrder uses sortOrder and keeps unsorted animations stable behind sorted ones', () => {
+    const { sortAnimationsByOrder } = loadAnimationOrderModule()
     const animations = [
         { id: 'ball', name: 'Ball', sortOrder: 2 },
         { id: 'sinus', name: 'Sinus' },
@@ -38,7 +38,7 @@ test('sortAnimationsForMenu uses sortOrder and keeps unsorted animations stable 
         { id: 'smilie', name: 'Smilie' }
     ]
 
-    assert.deepEqual(sortAnimationsForMenu(animations).map((animation) => animation.id), ['andre', 'ball', 'sinus', 'smilie'])
+    assert.deepEqual(sortAnimationsByOrder(animations).map((animation) => animation.id), ['andre', 'ball', 'sinus', 'smilie'])
 })
 
 test('moveAnimation repositions an item without mutating the original list', () => {

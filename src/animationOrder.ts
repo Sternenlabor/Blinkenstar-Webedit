@@ -6,7 +6,7 @@ function hasExplicitSortOrder(item: OrderedItem): boolean {
     return typeof item.sortOrder === 'number' && Number.isFinite(item.sortOrder)
 }
 
-export function sortAnimationsForMenu<T extends OrderedItem>(animations: T[]): T[] {
+export function sortAnimationsByOrder<T extends OrderedItem>(animations: T[]): T[] {
     return animations
         .map((animation, index) => ({ animation, index }))
         .sort((left, right) => {

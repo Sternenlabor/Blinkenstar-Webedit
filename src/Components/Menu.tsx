@@ -14,7 +14,7 @@ import { INITIAL_ANIMATION_TEXT } from '../variables'
 import type { Animation } from 'Reducer'
 import { getDisplayAnimations, shouldSeedPlaceholderLibrary } from './menu/menuLibrary'
 import { parseAnimationJson } from '../animationJsonTransfer'
-import { moveAnimation } from './menu/animationOrder'
+import { moveAnimation } from '../animationOrder'
 
 type Props = {
     active: string,
