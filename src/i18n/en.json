@@ -40,6 +40,7 @@
         "gallery": "Gallery",
         "admin_gallery": "Admin Gallery",
         "clear_library": "Delete All",
+        "delete_animation": "Delete {{name}}",
         "reorder_animation": "Reorder animation",
         "login": "Login",
         "logout": "Logout",

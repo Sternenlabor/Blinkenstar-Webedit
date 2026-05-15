@@ -273,6 +273,7 @@ export default function Menu(
                             onClick={() => navigate(`/${animation.id}`)}
                             onRemove={handleRemove}
                             dragging={animation.id === draggingId}
+                            deleteLabel={t('menu.delete_animation', { name: animation.name || animation.text || t('animation.animation') })}
                             dragHandleLabel={t('menu.reorder_animation')}
                             itemRef={(element) => setAnimationItemRef(animation.id, element)}
                             onDragPointerDown={handleDragPointerDown(animation.id)}

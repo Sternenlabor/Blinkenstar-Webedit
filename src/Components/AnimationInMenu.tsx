@@ -11,7 +11,7 @@ import type { Animation } from 'Reducer'
 
 const style = {
     preview: { display: 'flex', marginRight: 16 },
-    actions: { display: 'flex', alignItems: 'center' },
+    actions: { display: 'flex', alignItems: 'center', gap: 0.5 },
     dragHandle: { cursor: 'grab', touchAction: 'none', color: 'text.secondary' },
     dragging: { opacity: 0.72, backgroundColor: 'action.selected' }
 }
@@ -22,6 +22,7 @@ type Props = {
     onRemove: (arg0: string) => void
     onClick?: () => void
     dragging?: boolean
+    deleteLabel: string
     dragHandleLabel: string
     itemRef?: (element: HTMLLIElement | null) => void
     onDragPointerDown: (event: React.PointerEvent<HTMLButtonElement>) => void
@@ -36,6 +37,7 @@ function AnimationInMenu({
     onRemove,
     onClick,
     dragging = false,
+    deleteLabel,
     dragHandleLabel,
     itemRef,
     onDragPointerDown,
@@ -57,7 +59,6 @@ function AnimationInMenu({
                 <Box sx={style.actions}>
                     <IconButton
                         aria-label={dragHandleLabel}
-                        edge="end"
                         onClick={(event) => event.stopPropagation()}
                         onPointerCancel={onDragPointerCancel}
                         onPointerDown={onDragPointerDown}
@@ -67,7 +68,12 @@ function AnimationInMenu({
                     >
                         <DragIndicatorIcon />
                     </IconButton>
-                    <IconButton onClick={handleRemove} edge="end">
+                    <IconButton
+                        aria-label={deleteLabel}
+                        title={deleteLabel}
+                        onClick={handleRemove}
+                        onPointerDown={(event) => event.stopPropagation()}
+                    >
                         <DeleteForeverIcon />
                     </IconButton>
                 </Box>
