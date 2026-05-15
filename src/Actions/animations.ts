@@ -5,6 +5,7 @@ import UUID from 'uuid-js'
 import type { Animation } from 'Reducer'
 import { saveAnimationsToRemote, removeAnimationRemote } from '../db'
 import { normalizeAnimation } from '../animationNormalization'
+import { applyAnimationSortOrder } from 'Components/menu/animationOrder'
 
 const EMPTY_DATA: List<number> = List(range(8).map(() => 0x00))
 
@@ -71,6 +72,12 @@ export const removeAnimation = createAction('REMOVE_ANIMATION', async (animation
         await removeAnimationRemote(uid, animationId)
     }
     return animationId
+})
+
+export const reorderAnimations = createAction('REORDER_ANIMATIONS', (animations: Animation[]) => {
+    const reordered = applyAnimationSortOrder(animations).map((animation) => normalizeAnimation(animation))
+    reordered.forEach((animation) => localStorage.setItem(`animation:${animation.id}`, JSON.stringify(animation)))
+    return reordered
 })
 
 export const reset = createAction('RESET')

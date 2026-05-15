@@ -6,6 +6,7 @@ import TextField from '@mui/material/TextField'
 import ShareIcon from '@mui/icons-material/Share'
 import { getFrameColumns } from '../utils'
 import type { Animation } from 'Reducer'
+import AnimationDownloadButton from './editor/AnimationDownloadButton'
 import EditorPanel from './editor/EditorPanel'
 import EditorSliderRow from './editor/EditorSliderRow'
 import editorSpacing from './editor/editorSpacing'
@@ -68,10 +69,11 @@ export default function PixelEditor({ animation, onUpdate, onShare }: Props): No
 
     return (
         <EditorPanel>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1, mb: -1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 1, mb: -1, flexWrap: 'wrap' }}>
                 <Button size="small" variant="outlined" color="primary" onClick={() => onShare(animation)} startIcon={<ShareIcon />}>
                     {t('pixelEditor.share', 'Share')}
                 </Button>
+                <AnimationDownloadButton animation={animation} label={t('animation_file.download')} />
             </Box>
 
             <PixelEditorCanvas

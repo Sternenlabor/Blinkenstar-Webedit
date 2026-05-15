@@ -6,6 +6,11 @@
         "animation": "Animation",
         "pixel": "Animation"
     },
+    "animation_file": {
+        "download": "JSON herunterladen",
+        "upload": "JSON hochladen",
+        "upload_error": "Animations-JSON konnte nicht hochgeladen werden."
+    },
     "textEditor": {
         "name": "Name des Textes",
         "textPlaceholder": "Angezeigter Text",
@@ -35,6 +40,7 @@
         "gallery": "Galerie",
         "admin_gallery": "Admin Galerie",
         "clear_library": "Alle Löschen",
+        "reorder_animation": "Animation verschieben",
         "login": "Login",
         "logout": "Logout",
         "github": "GitHub-Repository"

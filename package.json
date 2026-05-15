@@ -4,7 +4,7 @@
     "description": "Webeditor for Blinkenstar",
     "scripts": {
         "test": "npm run build && npm run lint && npm run typecheck && npm run test:unit",
-        "test:unit": "node --test webpack.config.test.js db.test.js config.test.js editorSpacing.test.js animationNormalization.test.js flashAudioContexts.test.js rightMenu.github.test.js",
+        "test:unit": "node --test webpack.config.test.js db.test.js config.test.js editorSpacing.test.js animationNormalization.test.js animationJsonTransfer.test.js flashAudioContexts.test.js menuAnimationOrder.test.js rightMenu.github.test.js",
         "start": "cross-env NODE_ENV=development API_URL=http://localhost:8000 webpack-dev-server --host 0.0.0.0 --hot --progress --history-api-fallback",
         "dev:frontend": "npm run dev",
         "dev": "cross-env NODE_ENV=development API_URL=http://localhost:8000 webpack-dev-server --host 0.0.0.0 --history-api-fallback",

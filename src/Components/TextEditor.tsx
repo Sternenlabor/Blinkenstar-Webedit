@@ -10,6 +10,7 @@ import ShareIcon from '@mui/icons-material/Share'
 import { Typography } from '@mui/material'
 import type { Animation } from 'Reducer'
 import AnimationPreview from './AnimationPreview'
+import AnimationDownloadButton from './editor/AnimationDownloadButton'
 import EditorPanel from './editor/EditorPanel'
 import EditorSliderRow from './editor/EditorSliderRow'
 import editorSpacing from './editor/editorSpacing'
@@ -92,10 +93,11 @@ export default function TextEditor({ animation, onUpdate, onShare }: Props): Nod
 
     return (
         <EditorPanel>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1, mb: -1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 1, mb: -1, flexWrap: 'wrap' }}>
                 <Button size="small" variant="outlined" color="primary" onClick={() => onShare(animation)} startIcon={<ShareIcon />}>
                     {t('textEditor.share', 'Share')}
                 </Button>
+                <AnimationDownloadButton animation={animation} label={t('animation_file.download')} />
             </Box>
 
             <AnimationPreview animation={animation} />

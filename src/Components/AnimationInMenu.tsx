@@ -5,11 +5,15 @@ import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import AnimationPreview from './AnimationPreview'
 import type { Animation } from 'Reducer'
 
 const style = {
-    preview: { display: 'flex', marginRight: 16 }
+    preview: { display: 'flex', marginRight: 16 },
+    actions: { display: 'flex', alignItems: 'center' },
+    dragHandle: { cursor: 'grab', touchAction: 'none', color: 'text.secondary' },
+    dragging: { opacity: 0.72, backgroundColor: 'action.selected' }
 }
 
 type Props = {
@@ -17,9 +21,28 @@ type Props = {
     selected: boolean
     onRemove: (arg0: string) => void
     onClick?: () => void
+    dragging?: boolean
+    dragHandleLabel: string
+    itemRef?: (element: HTMLLIElement | null) => void
+    onDragPointerDown: (event: React.PointerEvent<HTMLButtonElement>) => void
+    onDragPointerMove: (event: React.PointerEvent<HTMLButtonElement>) => void
+    onDragPointerUp: (event: React.PointerEvent<HTMLButtonElement>) => void
+    onDragPointerCancel: (event: React.PointerEvent<HTMLButtonElement>) => void
 }
 
-function AnimationInMenu({ animation, selected, onRemove, onClick }: Props): Node {
+function AnimationInMenu({
+    animation,
+    selected,
+    onRemove,
+    onClick,
+    dragging = false,
+    dragHandleLabel,
+    itemRef,
+    onDragPointerDown,
+    onDragPointerMove,
+    onDragPointerUp,
+    onDragPointerCancel
+}: Props): Node {
     const handleRemove = (e: React.MouseEvent) => {
         e.stopPropagation()
         onRemove(animation.id)
@@ -27,14 +50,30 @@ function AnimationInMenu({ animation, selected, onRemove, onClick }: Props): Nod
 
     return (
         <ListItem
+            ref={itemRef}
             disablePadding
+            sx={dragging ? style.dragging : undefined}
             secondaryAction={
-                <IconButton onClick={handleRemove} edge="end">
-                    <DeleteForeverIcon />
-                </IconButton>
+                <Box sx={style.actions}>
+                    <IconButton
+                        aria-label={dragHandleLabel}
+                        edge="end"
+                        onClick={(event) => event.stopPropagation()}
+                        onPointerCancel={onDragPointerCancel}
+                        onPointerDown={onDragPointerDown}
+                        onPointerMove={onDragPointerMove}
+                        onPointerUp={onDragPointerUp}
+                        sx={style.dragHandle}
+                    >
+                        <DragIndicatorIcon />
+                    </IconButton>
+                    <IconButton onClick={handleRemove} edge="end">
+                        <DeleteForeverIcon />
+                    </IconButton>
+                </Box>
             }
         >
-            <ListItemButton onClick={onClick} selected={selected} sx={{ py: 2, pr: 8 }}>
+            <ListItemButton onClick={onClick} selected={selected} sx={{ py: 2, pr: 12 }}>
                 <Box style={style.preview}>
                     <AnimationPreview animation={animation} size="thumb" offColor="black" />
                 </Box>

@@ -1,6 +1,7 @@
 import { Map } from 'immutable';
 import type { Animation } from 'Reducer'
 import { INITIAL_ANIMATION_TEXT } from '../../variables'
+import { sortAnimationsForMenu } from './animationOrder'
 
 type RemoteAnimation = Animation & {
     user_id?: string
@@ -15,10 +16,12 @@ export function getDisplayAnimations(animations: Map<string, Animation>, uid: st
     const hasRemoteAnimations = Boolean(uid && animationList.some((animation) => animation.user_id != null))
 
     if (!hasRemoteAnimations) {
-        return animationList
+        return sortAnimationsForMenu(animationList)
     }
 
-    return animationList.filter(
-        (animation) => !(animation.type === 'text' && animation.text === INITIAL_ANIMATION_TEXT && animation.user_id == null)
+    return sortAnimationsForMenu(
+        animationList.filter(
+            (animation) => !(animation.type === 'text' && animation.text === INITIAL_ANIMATION_TEXT && animation.user_id == null)
+        )
     )
 }

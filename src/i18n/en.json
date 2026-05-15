@@ -6,6 +6,11 @@
         "animation": "Animation",
         "pixel": "Animation"
     },
+    "animation_file": {
+        "download": "Download JSON",
+        "upload": "Upload JSON",
+        "upload_error": "Could not upload animation JSON."
+    },
     "textEditor": {
         "name": "Label",
         "textPlaceholder": "Text to display",
@@ -35,6 +40,7 @@
         "gallery": "Gallery",
         "admin_gallery": "Admin Gallery",
         "clear_library": "Delete All",
+        "reorder_animation": "Reorder animation",
         "login": "Login",
         "logout": "Logout",
         "github": "GitHub repository"

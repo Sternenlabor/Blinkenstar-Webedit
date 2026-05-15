@@ -65,6 +65,10 @@ export const loggedIn = createAction('LOGIN', async (user: {
 export const syncLibrary = createAction('UPSERT_ANIMATIONS', async (uid: string, localLib: Map<string, Animation>) => {
     // 1) Fetch all from backend
     let remoteArray = await fetchRemoteAnimations(uid)
+    remoteArray = remoteArray.map((remoteAnimation) => {
+        const localAnimation = localLib.get(remoteAnimation.id)
+        return localAnimation?.sortOrder === undefined ? remoteAnimation : { ...remoteAnimation, sortOrder: localAnimation.sortOrder }
+    })
     // 2) Save remote animations to localStorage
     remoteArray.forEach((anim) => localStorage.setItem(`animation:${anim.id}`, JSON.stringify(anim)))
     // 3) Find unsynced local animations and push them
@@ -73,6 +77,10 @@ export const syncLibrary = createAction('UPSERT_ANIMATIONS', async (uid: string,
         await saveAnimationsToRemote(uid, unsynced)
         // 4) Re-fetch remote to include newly pushed animations
         remoteArray = await fetchRemoteAnimations(uid)
+        remoteArray = remoteArray.map((remoteAnimation) => {
+            const localAnimation = localLib.get(remoteAnimation.id)
+            return localAnimation?.sortOrder === undefined ? remoteAnimation : { ...remoteAnimation, sortOrder: localAnimation.sortOrder }
+        })
         remoteArray.forEach((anim) => localStorage.setItem(`animation:${anim.id}`, JSON.stringify(anim)))
     }
     return remoteArray

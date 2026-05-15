@@ -21,7 +21,8 @@ export type Animation = {
     author?: string,
     reviewedAt?: number,
     modifiedAt?: number,
-    originalId?: string
+    originalId?: string,
+    sortOrder?: number
 };
 
 export type State = {
@@ -117,6 +118,19 @@ export default handleActions(
                 return state
             }
             const animations = state.animations.remove(payload)
+
+            return {
+                ...state,
+                animations
+            }
+        },
+        REORDER_ANIMATIONS: (state: State, { payload }) => {
+            let animations = state.animations
+            payload.forEach((animation) => {
+                if (animations.has(animation.id)) {
+                    animations = animations.set(animation.id, animation)
+                }
+            })
 
             return {
                 ...state,
